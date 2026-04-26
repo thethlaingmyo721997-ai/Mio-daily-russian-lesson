@@ -1,70 +1,119 @@
 import os
+
 import requests
+
 import datetime
 
+
+
 API_TOKEN = os.getenv('BOT_TOKEN')
+
 CHAT_ID = os.getenv('CHAT_ID')
 
-def get_lesson_by_time():
-    now = datetime.datetime.now()
-    # မြန်မာစံတော်ချိန် တွက်ချက်ခြင်း (UTC + 6:30)
-    hour = (now.hour + 6) % 24
-    day_of_month = now.day
 
-    # --- မနက်ခင်း: နှုတ်ဆက်စကား (Greetings) ---
-    morning_lessons = {
-        1: "Привет (ပရီ-ဗျက်) - မင်္ဂလာပါ",
-        2: "Доброе утро (ဒိုး-ဘရွဲ အူ-ထရို) - မင်္ဂလာနံနက်ခင်းပါ",
-        3: "Здравствуйте (ဇဒရပ်-တ်စ-ဗွီ-ကျဲ) - မင်္ဂလာပါ (အများဆိုင်)",
-        4: "Как дела? (ကပ် ဒီ-လား) - နေကောင်းလား?",
-        5: "Приятно познакомиться (ပရီ-ယတ်-နာ ပါ-ဇနာ-ကို-မစ်-ဆာ) - တွေ့ရတာ ဝမ်းသာပါတယ်",
-        # ... (ကျန်တဲ့ရက်တွေအတွက်လည်း ဒီပုံစံအတိုင်း ဖြည့်နိုင်ပါတယ်)
+
+def get_daily_content():
+
+    # ရက် ၃၀ စာ သင်ခန်းစာများ (မြန်မာအသံထွက်နှင့် အဓိပ္ပာယ် အပြည့်အစုံ)
+
+    lessons = {
+
+        1: "🇷🇺 Lesson 1: Greetings\n\nПривет\n(ပရီ-ဗျက်)\nမင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
+
+        2: "🇷🇺 Lesson 2: Gratitude\n\nСпасибо\n(စပါ-စီး-ဗား)\nကျေးဇူးတင်ပါတယ်",
+
+        3: "🇷🇺 Lesson 3: Politeness\n\nПожалуйста\n(ပါ-ရှော-လ်စတာ)\nရပါတယ် / ကျေးဇူးပြု၍",
+
+        4: "🇷🇺 Lesson 4: Yes/No\n\nДа (ဒါး) - ဟုတ်ကဲ့\nНет (ညက်) - မဟုတ်ဘူး",
+
+        5: "🇷🇺 Lesson 5: Well-being\n\nКак дела?\n(ကပ် ဒီ-လား?)\nနေကောင်းလား?",
+
+        6: "🇷🇺 Lesson 6: Introductions\n\nМеня зовут...\n(မိ-ညာ ဇာ-ဗွတ်...)\nကျွန်တော့်နာမည်က... ပါ",
+
+        7: "🇷🇺 Lesson 7: Understanding\n\nЯ понимаю\n(ယာ ပါ-နီ-မာ-ယူ)\nကျွန်တော် နားလည်ပါတယ်",
+
+        8: "🇷🇺 Lesson 8: Not Understanding\n\nЯ не понимаю\n(ယာ ညဲ ပါ-နီ-မာ-ယူ)\nကျွန်တော် နားမလည်ပါဘူး",
+
+        9: "🇷🇺 Lesson 9: Farewell\n\nДо свидания\n(ဒါ့စ-ဗီ-ဒါး-နီး-ယား)\nပြန်တွေ့ကြမယ် (တာ့တာ)",
+
+        10: "🇷🇺 Lesson 10: Farewell (Casual)\n\nПока\n(ပါ-ကား)\nတာ့တာ (ရင်းနှီးသူများအကြား)",
+
+        11: "🇷🇺 Lesson 11: Apology\n\nИзвините\n(အစ်ဇ်-ဗီ-နီး-ကျဲ)\nတောင်းပန်ပါတယ်",
+
+        12: "🇷🇺 Lesson 12: Agreement\n\nХорошо\n(ဟာ-ရာ-ရှော)\nကောင်းပြီ / အိုကေ",
+
+        13: "🇷🇺 Lesson 13: Water\n\nВода\n(ဗာ-ဒါး)\nရေ",
+
+        14: "🇷🇺 Lesson 14: Bread\n\nХлеб\n(ခလျပ်)\nပေါင်မုန့်",
+
+        15: "🇷🇺 Lesson 15: Family\n\nСемья\n(ဆိမျ-ယာ)\nမိသားစု",
+
+        16: "🇷🇺 Lesson 16: Mother\n\nМама\n(မား-မား)\nအမေ",
+
+        17: "🇷🇺 Lesson 17: Father\n\nПапа\n(ပား-ပား)\nအဖေ",
+
+        18: "🇷🇺 Lesson 18: Friend\n\nДруг\n(ဒရု(ခ်))\nသူငယ်ချင်း",
+
+        19: "🇷🇺 Lesson 19: Work\n\nРабота\n(ရာ-ဘိုး-တာ)\nအလုပ်",
+
+        20: "🇷🇺 Lesson 20: Car\n\nМашина\n(မာ-ရှီး-နား)\nကား",
+
+        21: "🇷🇺 Lesson 21: City\n\nГород\n(ဂိုး-ရတ်)\nမြို့",
+
+        22: "🇷🇺 Lesson 22: House\n\nДом\n(ဒုမ်း)\nအိမ်",
+
+        23: "🇷🇺 Lesson 23: School\n\nШкола\n(ရှကိုး-လား)\nကျောင်း",
+
+        24: "🇷🇺 Lesson 24: Teacher\n\nУчитель\n(အူ-ချီး-ကျိလ်)\nဆရာ/ဆရာမ",
+
+        25: "🇷🇺 Lesson 25: Book\n\nКнига\n(ကနီး-ဂါး)\nစာအုပ်",
+
+        26: "🇷🇺 Lesson 26: Time\n\nВремя\n(ဗရီ-မျာ)\nအချိန်",
+
+        27: "🇷🇺 Lesson 27: Today\n\nСегодня\n(စီး-ဗိုး-ဒနီး-ယာ)\nဒီနေ့",
+
+        28: "🇷🇺 Lesson 28: Tomorrow\n\nЗавтра\n(ဇားဖ်-တြာ)\nမနက်ဖြန်",
+
+        29: "🇷🇺 Lesson 29: Love\n\nЯ люблю тебя\n(ယာ လျူ-ဗလျူ တီ-ဗျာ)\nမင်းကို ချစ်တယ်",
+
+        30: "🇷🇺 Lesson 30: Good luck\n\nУдачи!\n(အူ-ဒါး-ချီ)\nကံကောင်းပါစေ!"
+
     }
 
-    # --- နေ့လည်ခင်း: စကားပြော (Phrases) ---
-    afternoon_lessons = {
-        1: "Меня зовут... (မိ-ညာ ဇာ-ဗွတ်...) - ကျွန်တော့်နာမည်က... ပါ",
-        2: "Я из Мьянмы (ယာ အစ် မြန်း-မား) - ကျွန်တော် မြန်မာနိုင်ငံကပါ",
-        3: "Сколько это стоит? (စကိုးလ်-ကာ အက်-တာ စတိုး-အစ်) - ဒါ ဘယ်လောက်လဲ?",
-        4: "Я понимаю (ယာ ပါ-နီ-မာ-ယူ) - ကျွန်တော် နားလည်ပါတယ်",
-        5: "Помогите мне (ပါ-မာ-ဂီး-ကျဲ မိ-ညဲ) - ကျွန်တော့်ကို ကူညီပါ",
-    }
+    
 
-    # --- ညနေခင်း: ဝေါဟာရ (Vocabulary) ---
-    evening_lessons = {
-        1: "Вода (ဗာ-ဒါး) - ရေ",
-        2: "Хлеб (ခလျပ်) - ပေါင်မုန့်",
-        3: "Машина (မာ-ရှီး-နား) - ကား",
-        4: "Дом (ဒုမ်း) - အိမ်",
-        5: "Книга (ကနီး-ဂါး) - စာအုပ်",
-    }
+    day_of_month = datetime.datetime.now().day
 
-    # အချိန်အလိုက် သင်ခန်းစာ ရွေးချယ်ခြင်း
-    if 7 <= hour <= 10:
-        lesson = morning_lessons.get(day_of_month, morning_lessons[1])
-        header = "☀️ <b>မနက်ခင်း နှုတ်ဆက်စကား သင်ခန်းစာ</b>"
-    elif 11 <= hour <= 13:
-        lesson = afternoon_lessons.get(day_of_month, afternoon_lessons[1])
-        header = "🌤 <b>နေ့လည်ခင်း စကားပြော သင်ခန်းစာ</b>"
-    elif 14 <= hour <= 17:
-        lesson = evening_lessons.get(day_of_month, evening_lessons[1])
-        header = "☕ <b>ညနေခင်း ဝေါဟာရ သင်ခန်းစာ</b>"
-    else:
-        return None # သတ်မှတ်ချိန်မဟုတ်ရင် စာမပို့ပါ
+    return lessons.get(day_of_month, lessons[1])
 
-    return f"{header}\n\n{lesson}"
+
 
 def send_message(text):
-    if text is None: return
+
+    today = datetime.datetime.now().strftime("%d %B %Y")
+
+    formatted_text = f"📅 {today}\n\n{text}\n\n--- \nMioRussianLanguage Center"
+
     
+
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
+
     payload = {
+
         "chat_id": CHAT_ID,
+
         "text": f"{text}\n\n---\nMioRussianLanguage Center",
+
         "parse_mode": "HTML"
+
     }
+
     requests.post(url, json=payload)
 
+
+
 if __name__ == "__main__":
-    message = get_lesson_by_time()
+
+    message = get_daily_content()
+
     send_message(message)
