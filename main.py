@@ -1,6 +1,7 @@
 import os
 import requests
 import datetime
+import json  # ဒါလေး ထပ်ထည့်ရပါမယ်
 
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
@@ -18,54 +19,53 @@ def get_daily_content():
         9: "🇷🇺 Lesson 9: Farewell\n\nДо свидания\n(ဒါ့စ-ဗီ-ဒါး-နီး-ယား)\nပြန်တွေ့ကြမယ် (တာ့တာ)",
         10: "🇷🇺 Lesson 10: Farewell (Casual)\n\nПока\n(ပါ-ကား)\nတာ့တာ (ရင်းနှီးသူများအကြား)",
         11: "🇷🇺 Lesson 11: Apology\n\nИзвините\n(အစ်ဇ်-ဗီ-နီး-ကျဲ)\nတောင်းပန်ပါတယ်",
-        12: "🇷🇺 Lesson 12: Agreement\n\nХорошо\n(ဟာ-ရာ-ရှော)\nကောင်းပြီ / အိုကေ",
-        13: "🇷🇺 Lesson 13: Water\n\nВода\n(ဗာ-ဒါး)\nရေ",
-        14: "🇷🇺 Lesson 14: Bread\n\nХлеб\n(ခလျပ်)\nပေါင်မုန့်",
-        15: "🇷🇺 Lesson 15: Family\n\nСемья\n(ဆိမျ-ယာ)\nမိသားစု",
-        16: "🇷🇺 Lesson 16: Mother\n\nМама\n(မား-မား)\nအမေ",
-        17: "🇷🇺 Lesson 17: Father\n\nПапа\n(ပား-ပား)\nအဖေ",
-        18: "🇷🇺 Lesson 18: Friend\n\nДруг\n(ဒရုခ်)\nသူငယ်ချင်း",
-        19: "🇷🇺 Lesson 19: Work\n\nРабота\n(ရာ-ဘိုး-တာ)\nအလုပ်",
-        20: "🇷🇺 Lesson 20: Car\n\nМашина\n(မာ-ရှီး-နား)\nကား",
-        21: "🇷🇺 Lesson 21: City\n\nГород\n(ဂိုး-ရတ်)\nမြို့",
-        22: "🇷🇺 Lesson 22: House\n\nДом\n(ဒုမ်း)\nအိမ်",
-        23: "🇷🇺 Lesson 23: School\n\nШкола\n(ရှကိုး-လား)\nကျောင်း",
-        24: "🇷🇺 Lesson 24: Teacher\n\nУчитель\n(အူ-ချီး-ကျိလ်)\nဆရာ/ဆရာမ",
-        25: "🇷🇺 Lesson 25: Book\n\nКнига\n(ကနီး-ဂါး)\nစာအုပ်",
-        26: "🇷🇺 Lesson 26: Time\n\nВремя\n(ဗရီ-မျာ)\nအချိန်",
-        27: "🇷🇺 Lesson 27: Today\n\nСегодня\n(စီး-ဗိုး-ဒနီး-ယာ)\nဒီနေ့",
-        28: "🇷🇺 Lesson 28: Tomorrow\n\nЗавтра\n(ဇားဖ်-တြာ)\nမနက်ဖြန်",
+        12: "🇷🇺 Lesson 12: Agreement\n\nХоရိုရှော (ဟာ-ရာ-ရှော)\nကောင်းပြီ / အိုကေ",
+        13: "🇷🇺 Lesson 13: Water\n\nВода (ဗာ-ဒါး)\nရေ",
+        14: "🇷🇺 Lesson 14: Bread\n\nХлеб (ခလျပ်)\nပေါင်မုန့်",
+        15: "🇷🇺 Lesson 15: Family\n\nСемья (ဆိမျ-ယာ)\nမိသားစု",
+        16: "🇷🇺 Lesson 16: Mother\n\nМама (မား-မား)\nအမေ",
+        17: "🇷🇺 Lesson 17: Father\n\nПапа (ပား-ပား)\nအဖေ",
+        18: "🇷🇺 Lesson 18: Friend\n\nДруг (ဒရုခ်)\nသူငယ်ချင်း",
+        19: "🇷🇺 Lesson 19: Work\n\nРабота (ရာ-ဘိုး-တာ)\nအလုပ်",
+        20: "🇷🇺 Lesson 20: Car\n\nМашина (မာ-ရှီး-နား)\nကား",
+        21: "🇷🇺 Lesson 21: City\n\nГород (ဂိုး-ရတ်)\nမြို့",
+        22: "🇷🇺 Lesson 22: House\n\nДом (ဒုမ်း)\nအိမ်",
+        23: "🇷🇺 Lesson 23: School\n\nШкола (ရှကိုး-လား)\nကျောင်း",
+        24: "🇷🇺 Lesson 24: Teacher\n\nУчитель (အူ-ချီး-ကျိလ်)\nဆရာ/ဆရာမ",
+        25: "🇷🇺 Lesson 25: Book\n\nКнига (ကနီး-ဂါး)\nစာအုပ်",
+        26: "🇷🇺 Lesson 26: Time\n\nВремя (ဗရီ-မျာ)\nအချိန်",
+        27: "🇷🇺 Lesson 27: Today\n\nСегодня (စီး-ဗိုး-ဒနီး-ယာ)\nဒီနေ့",
+        28: "🇷🇺 Lesson 28: Tomorrow\n\nЗавтра (ဇားဖ်-တြာ)\nမနက်ဖြန်",
         29: "🇷🇺 Lesson 29: Love\n\nЯ люблю тебя\n(ယာ လျူ-ဗလျူ တီ-ဗျာ)\nမင်းကို ချစ်တယ်",
-        30: "🇷🇺 Lesson 30: Good luck\n\nУдачи!\n(အူ-ဒါး-ချီ)\nကံကောင်းပါစေ!"
+        30: "🇷🇺 Lesson 30: Good luck\n\nУдачи! (အူ-ဒါး-ချီ)\nကံကောင်းပါစေ!"
     }
 
     now = datetime.datetime.now()
     lesson_index = (now.minute // 2) + 1
-    
     return lessons.get(lesson_index, lessons[1])
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     
-    # Inline Keyboard Buttons ပြင်ဆင်ခြင်း
     keyboard = {
         "inline_keyboard": [
             [
-                {"text": "📞 Call / Viber", "url": "viber://add?number=959693548605"},
-                {"text": "📱 TikTok", "url": "https://www.tiktok.com/@miorusskiy?_r=1&_t=ZS-95rcAOW6Qgk"}
+                {"text": "📞 Call / Viber", "url": "https://viber.click/959693548605"},
+                {"text": "📱 TikTok", "url": "https://www.tiktok.com/@miorusskiy"}
             ]
         ]
     }
 
-    caption_text = f"{text}\n\n<b>သင်တန်းအပ်ရန်နှင့် အသေးစိတ်စုံစမ်းရန်-</b>"
-    
     payload = {
         "chat_id": CHAT_ID,
-        "text": f"{caption_text}\n\n---\nMioRussianLanguage Center",
+        "text": f"{text}\n\n<b>သင်တန်းအပ်ရန်နှင့် အသေးစိတ်စုံစမ်းရန်-</b>\n---\nMioRussianLanguage Center",
         "parse_mode": "HTML",
-        "reply_markup": keyboard
+        "reply_markup": json.dumps(keyboard)  # json.dumps သုံးဖို့ လိုအပ်ပါတယ်
     }
-    requests.post(url, json=payload)
+    
+    response = requests.post(url, json=payload)
+    # Status ကို GitHub Actions မှာ ကြည့်လို့ရအောင် print ထုတ်ထားပါမယ်
+    print(f"Response: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
     message = get_daily_content()
