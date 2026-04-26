@@ -2,7 +2,7 @@ name: Mio Russian Daily Lessons
 
 on:
   schedule:
-# ၅ မိနစ်တစ်ခါ အလုပ်လုပ်ရန်
+# ၅ မိနစ်တစ်ခါ အလုပ်လုပ်
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
