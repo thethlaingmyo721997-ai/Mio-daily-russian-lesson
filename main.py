@@ -1,119 +1,50 @@
 import os
-
 import requests
-
 import datetime
 
-
-
 API_TOKEN = os.getenv('BOT_TOKEN')
-
 CHAT_ID = os.getenv('CHAT_ID')
 
-
-
 def get_daily_content():
-
-    # ရက် ၃၀ စာ သင်ခန်းစာများ (မြန်မာအသံထွက်နှင့် အဓိပ္ပာယ် အပြည့်အစုံ)
-
+    # ရက် ၃၀ စာ သင်ခန်းစာများ
     lessons = {
-
-        1: "🇷🇺 Lesson : Greetings\n\nПривет(ပရီ-ဗျက်)\nမင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
-
-        2: "🇷🇺 Lesson : Gratitude\n\nСпасибо(စပါ-စီး-ဗား)\nကျေးဇူးတင်ပါတယ်",
-
-        3: "🇷🇺 Lesson : Politeness\n\nПожалуйста(ပါ-ရှော-လ်စတာ)\nရပါတယ် / ကျေးဇူးပြု၍",
-
-        4: "🇷🇺 Lesson : Yes/No\n\nДа (ဒါး) - ဟုတ်ကဲ့\nНет (ညက်) - မဟုတ်ဘူး",
-
-        5: "🇷🇺 Lesson : Well-being\n\nКак дела?\n(ကပ် ဒီ-လား?)\nနေကောင်းလား?",
-
-        6: "🇷🇺 Lesson : Introductions\n\nМеня зовут...(မိ-ညာ ဇာ-ဗွတ်...)\nကျွန်တော့်နာမည်က... ပါ",
-
-        7: "🇷🇺 Lesson : Understanding\n\nЯ понимаю(ယာ ပါ-နီ-မာ-ယူ)\nကျွန်တော် နားလည်ပါတယ်",
-
-        8: "🇷🇺 Lesson : Not Understanding\n\nЯ не понимаю(ယာ ညဲ ပါ-နီ-မာ-ယူ)\nကျွန်တော် နားမလည်ပါဘူး",
-
-        9: "🇷🇺 Lesson : Farewell\n\nДо свидания(ဒါ့စ-ဗီ-ဒါး-နီး-ယား)\nပြန်တွေ့ကြမယ် (တာ့တာ)",
-
-        10: "🇷🇺 Lesson : Farewell (Casual)\n\nПока(ပါ-ကား)\nတာ့တာ (ရင်းနှီးသူများအကြား)",
-
-        11: "🇷🇺 Lesson : Apology\n\nИзвините(အစ်ဇ်-ဗီ-နီး-ကျဲ)\nတောင်းပန်ပါတယ်",
-
-        12: "🇷🇺 Lesson : Agreement\n\nХорошо(ဟာ-ရာ-ရှော)\nကောင်းပြီ / အိုကေ",
-
-        13: "🇷🇺 Lesson : Water\n\nВода(ဗာ-ဒါး)\nရေ",
-
-        14: "🇷🇺 Lesson : Bread\n\nХлеб(ခလျပ်)\nပေါင်မုန့်",
-
-        15: "🇷🇺 Lesson : Family\n\nСемья(ဆိမျ-ယာ)\nမိသားစု",
-
-        16: "🇷🇺 Lesson : Mother\n\nМама(မား-မား)\nအမေ",
-
-        17: "🇷🇺 Lesson : Father\n\nПапа(ပား-ပား)\nအဖေ",
-
-        18: "🇷🇺 Lesson : Friend\n\nДруг(ဒရု(ခ်))\nသူငယ်ချင်း",
-
-        19: "🇷🇺 Lesson : Work\n\nРабота(ရာ-ဘိုး-တာ)\nအလုပ်",
-
-        20: "🇷🇺 Lesson : Car\n\nМашина(မာ-ရှီး-နား)\nကား",
-
-        21: "🇷🇺 Lesson : City\n\nГород(ဂိုး-ရတ်)\nမြို့",
-
-        22: "🇷🇺 Lesson : House\n\nДом(ဒုမ်း)\nအိမ်",
-
-        23: "🇷🇺 Lesson : School\n\nШкола(ရှကိုး-လား)\nကျောင်း",
-
-        24: "🇷🇺 Lesson : Teacher\n\nУчитель(အူ-ချီး-ကျိလ်)\nဆရာ/ဆရာမ",
-
-        25: "🇷🇺 Lesson : Book\n\nКнига(ကနီး-ဂါး)\nစာအုပ်",
-
-        26: "🇷🇺 Lesson : Time\n\nВремя(ဗရီ-မျာ)\nအချိန်",
-
-        27: "🇷🇺 Lesson : Today\n\nСегодня(စီး-ဗိုး-ဒနီး-ယာ)\nဒီနေ့",
-
-        28: "🇷🇺 Lesson : Tomorrow\n\nЗавтра(ဇားဖ်-တြာ)\nမနက်ဖြန်",
-
-        29: "🇷🇺 Lesson : Love\n\nЯ люблю тебя(ယာ လျူ-ဗလျူ တီ-ဗျာ)\nမင်းကို ချစ်တယ်",
-
-        30: "🇷🇺 Lesson : Good luck\n\nУдачи!(အူ-ဒါး-ချီ)\nကံကောင်းပါစေ!"
-
+        1: "🇷🇺 Lesson 1: Greetings\n\nПривет (ပရီ-ဗျက်) - မင်္ဂလာပါ",
+        2: "🇷🇺 Lesson 2: Gratitude\n\nСпасибо (စပါ-စီး-ဗား) - ကျေးဇူးတင်ပါတယ်",
+        3: "🇷🇺 Lesson 3: Politeness\n\nПожалуйста (ပါ-ရှော-လ်စတာ) - ရပါတယ်",
+        4: "🇷🇺 Lesson 4: Yes/No\n\nДа (ဒါး) - ဟုတ်ကဲ့ / Нет (ညက်) - မဟုတ်ဘူး",
+        5: "🇷🇺 Lesson 5: Well-being\n\nКак дела? (ကပ် ဒီ-လား?) - နေကောင်းလား?",
+        6: "🇷🇺 Lesson 6: Introductions\n\nМеня зовут... (မိ-ညာ ဇာ-ဗွတ်...) - ကျွန်တော့်နာမည်က... ပါ",
+        7: "🇷🇺 Lesson 7: Understanding\n\nЯ понимаю (ယာ ပါ-နီ-မာ-ယူ) - ကျွန်တော် နားလည်ပါတယ်",
+        8: "🇷🇺 Lesson 8: Not Understanding\n\nЯ не понимаю (ယာ ညဲ ပါ-နီ-မာ-ယူ) - ကျွန်တော် နားမလည်ပါဘူး",
+        9: "🇷🇺 Lesson 9: Farewell\n\nДо свидания (ဒါ့စ-ဗီ-ဒါး-နီး-ယား) - ပြန်တွေ့ကြမယ်",
+        10: "🇷🇺 Lesson 10: Farewell (Casual)\n\nПока (ပါ-ကား) - တာ့တာ"
     }
 
+    # --- စမ်းသပ်ရန်အတွက် Logic ---
+    # လက်ရှိ မိနစ်ကို ၅ နဲ့စားပြီး သင်ခန်းစာ နံပါတ်ထုတ်ယူခြင်း
+    # ဥပမာ - မိနစ် ၅ မှာ Lesson 1၊ မိနစ် ၁၀ မှာ Lesson 2၊ မိနစ် ၁၅ မှာ Lesson 3 ပို့ပါမယ်။
+    now = datetime.datetime.now()
+    current_minute = now.minute
+    lesson_index = (current_minute // 5) + 1
     
-
-    day_of_month = datetime.datetime.now().day
-
-    return lessons.get(day_of_month, lessons[1])
-
-
+    # သင်ခန်းစာ နံပါတ် ၁၀ ကျော်သွားရင် ပြန်စဖို့ (သို့မဟုတ်) default Lesson 1 ပေးဖို့
+    return lessons.get(lesson_index, lessons[1])
 
 def send_message(text):
-
-    today = datetime.datetime.now().strftime("%d %B %Y")
-
-    formatted_text = f"📅 {today}\n\n{text}\n\________ \nMioRussianLanguage Center"
-
+    now = datetime.datetime.now() + datetime.timedelta(hours=6, minutes=30)
+    current_time = now.strftime("%H:%M:%S")
     
-
+    # စမ်းသပ်နေစဉ်အတွင်း အချိန်ကိုပါ တစ်ခါတည်း ပြပေးခြင်း
+    formatted_text = f"🕒 <b>ပို့လွှတ်ချိန်: {current_time}</b>\n\n{text}"
+    
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
-
     payload = {
-
         "chat_id": CHAT_ID,
-
-        "text": f"{text}\n\n---\nMioRussianLanguage Center",
-
+        "text": f"{formatted_text}\n\n---\nMioRussianLanguage Center",
         "parse_mode": "HTML"
-
     }
-
     requests.post(url, json=payload)
 
-
-
 if __name__ == "__main__":
-
     message = get_daily_content()
-
     send_message(message)
