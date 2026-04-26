@@ -13,50 +13,44 @@ def get_daily_content():
         3: "🇷🇺 Politeness\n\nПожалуйста (ပါ-ရှော-လ်စတာ)\nရပါတယ် / ကျေးဇူးပြု၍",
         4: "🇷🇺 Yes/No\n\nДа (ဒါး) - ဟုတ်ကဲ့\nНет (ညက်) - မဟုတ်ဘူး",
         5: "🇷🇺 Well-being\n\nКак дела? (ကပ် ဒီ-လား?)\nနေကောင်းလား?",
-        6: "🇷🇺 Introductions\n\nМенያ ဇာဗွတ်... (မိ-ညာ ဇာ-ဗွတ်...)\nကျွန်တော့်နာမည်က... ပါ",
-        7: "🇷🇺 Understanding\n\nယာ ပါနီမာယူ (ယာ ပါ-နီ-မာ-ယူ)\nကျွန်တော် နားလည်ပါတယ်",
-        8: "🇷🇺 Not Understanding\n\nယာ ညဲ ပါနီမာယူ (ယာ ညဲ ပါ-နီ-မာ-ယူ)\nကျွန်တော် နားမလည်ပါဘူး",
-        9: "🇷🇺 Farewell\n\nဒါ့စဗီဒါးနီးယား (ဒါ့စ-ဗီ-ဒါး-နီး-ယား)\nပြန်တွေ့ကြမယ်",
-        10: "🇷🇺 Farewell (Casual)\n\nပါကား (ပါ-ကား)\nတာ့တာ",
-        29: "🇷🇺 Love\n\nယာ လျူဗလျူ တီဗျာ (ယာ လျူ-ဗလျူ တီ-ဗျာ)\nမင်းကို ချစ်တယ်",
-        30: "🇷🇺 Good luck\n\nအူဒါးချီ! (အူ-ဒါး-ချီ)\nကံကောင်းပါစေ!"
+        6: "🇷🇺 Introductions\n\nМеня зовут... (မိ-ညာ ဇာ-ဗွတ်...)\nကျွန်တော့်နာမည်က... ပါ",
+        29: "🇷🇺 Love\n\nЯ люблю тебя (ယာ လျူ-ဗလျူ တီ-ဗျာ)\nမင်းကို ချစ်တယ်",
+        30: "🇷🇺 Good luck\n\nУдачи! (အူ-ဒါး-ချီ)\nကံကောင်းပါစေ!"
     }
     
     now = datetime.datetime.now()
-    # စမ်းသပ်ရန်: ၅ မိနစ်တစ်ခါ သင်ခန်းစာပြောင်းခြင်း
     lesson_index = (now.minute // 5) + 1
     return lessons.get(lesson_index, lessons[1])
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     
-    # ခလုတ်များကို Telegram က လက်ခံနိုင်ဆုံး link ပုံစံများသို့ ပြောင်းလဲထားသည်
+    # ခလုတ်များ (Error ဖြစ်စေသော tel: ကို ဖယ်ရှားထားသည်)
     keyboard = {
         "inline_keyboard": [
             [
-                {"text": "📞 Call", "url": "tel +959693548605"},
-                {"text": "💬 Viber", "url": "https://viber.me/959693548605"}
-            ],
-            [
+                {"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"},
                 {"text": "📱 TikTok Channel", "url": "https://www.tiktok.com/@miorusskiy"}
             ]
         ]
     }
 
+    # ဖုန်းနံပါတ်ကို စာသားထဲမှာ တိုက်ရိုက်နှိပ်လို့ရအောင် လုပ်ထားပေးသည်
+    contact_info = (
+        "<b>သင်တန်းအပ်ရန်နှင့် အသေးစိတ်စုံစမ်းရန်:</b>\n"
+        "📞 ဖုန်းဖြင့်တိုက်ရိုက်ခေါ်ဆိုရန်: +959693548605\n"
+        "(ဖုန်းနံပါတ်ကို နှိပ်၍ တိုက်ရိုက်ခေါ်ဆိုနိုင်ပါသည်)"
+    )
+
     payload = {
-        "chat_id": str(CHAT_ID).strip(), # Space ပါနေရင် ဖယ်ထုတ်ရန်
-        "text": f"{text}\n\n<b>သင်တန်းအပ်ရန်နှင့် အသေးစိတ်စုံစမ်းရန်-</b>\n---\nMioRussianLanguage Center",
+        "chat_id": str(CHAT_ID).strip(),
+        "text": f"{text}\n\n{contact_info}\n---\nMioRussianLanguage Center",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
     
     r = requests.post(url, json=payload)
-    
-    # အရေးကြီး: GitHub Actions ရဲ့ Log မှာ အဖြေကို ကြည့်နိုင်ရန်
-    print(f"--- BOT LOG ---")
-    print(f"Status Code: {r.status_code}")
-    print(f"Response Body: {r.text}")
-    print(f"----------------")
+    print(f"Status: {r.status_code}, Response: {r.text}")
 
 if __name__ == "__main__":
     message = get_daily_content()
