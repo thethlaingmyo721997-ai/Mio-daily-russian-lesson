@@ -2,7 +2,7 @@ import os
 import requests
 import datetime
 
-# GitHub Secrets မှ အချက်အလက်ယူခြင်း
+# GitHub Secrets မှ အချက်အလက်ယူခြင်
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
