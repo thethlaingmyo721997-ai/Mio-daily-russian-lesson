@@ -64,7 +64,7 @@ def send_message(text):
         f"{text}\n\n"
         f"<b>သင်တန်းစုံစမ်းရန်:</b>\n"
         f"💬 <a href='{viber_link}'>Viber: +959693548605</a>\n"
-        f"📞 Call Phone: +959693548605"
+        f"📞 Call Phone: 09693548605"
     )
 
     payload = {
