@@ -41,19 +41,27 @@ def get_daily_content():
         30: "🇷🇺 Good luck\n\n<code>Word:\tУдачи!\t(အူ-ဒါး-ချီ)\nMeaning:\tကံကောင်းပါစေ!</code>"
     }
     
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow() # Server အချိန် (UTC) ကို ယူပါမည်
     day = now.day
     hour = now.hour
+    minute = now.minute
 
-    # အချိန်ပေါ်မူတည်ပြီး Lesson တွက်ချက်ခြင်း (တစ်ရက် ၃ ခုနှုန်း)
-    if hour < 10:    # မနက်ပိုင်း
+    # UTC 2:30 (MMT 9:00 AM)
+    if hour == 2:
         idx = (day * 3 - 2)
-    elif hour < 16:  # နေ့လယ်ပိုင်း
+    # UTC 5:30 (MMT 12:00 PM)
+    elif hour == 5:
         idx = (day * 3 - 1)
-    else:            # ညပိုင်း
+    # UTC 8:30 (MMT 3:00 PM)
+    elif hour == 8:
         idx = (day * 3)
+    else:
+        # Manual run လုပ်လျှင် လက်ရှိအချိန်ပေါ်မူတည်၍ တွက်ရန်
+        if hour < 4: idx = (day * 3 - 2)
+        elif hour < 7: idx = (day * 3 - 1)
+        else: idx = (day * 3)
 
-    # Lesson index သည် ၁ နှင့် ၃၀ ကြားသာ ဖြစ်ရမည်
+    # Lesson index limit (1-30)
     if idx < 1: idx = 1
     if idx > 30: idx = 30
     
