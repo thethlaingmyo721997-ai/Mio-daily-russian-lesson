@@ -34,7 +34,7 @@ def send_message(text):
     keyboard = {
         "inline_keyboard": [
             [
-                {"text": "📞 Call", "url": "tel:+959693548605"},
+                {"text": "📞 Call", "url": "tel +959693548605"},
                 {"text": "💬 Viber", "url": "https://viber.me/959693548605"}
             ],
             [
