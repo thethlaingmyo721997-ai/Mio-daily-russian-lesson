@@ -6,7 +6,6 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # ရက် ၃၀ စာ သင်ခန်းစာများ (မြန်မာအသံထွက်နှင့် အဓိပ္ပာယ်)
     lessons = {
         1: "🇷🇺 Lesson 1: Greetings\n\nПривет (ပရီ-ဗျက်)\nမင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Gratitude\n\nСпасибо (စပါ-စီး-ဗား)\nကျေးဇူးတင်ပါတယ်",
@@ -21,7 +20,7 @@ def get_daily_content():
         11: "🇷🇺 Lesson 11: Apology\n\nИзвините\n(အစ်ဇ်-ဗီ-နီး-ကျဲ)\nတောင်းပန်ပါတယ်",
         12: "🇷🇺 Lesson 12: Agreement\n\nХорошо\n(ဟာ-ရာ-ရှော)\nကောင်းပြီ / အိုကေ",
         13: "🇷🇺 Lesson 13: Water\n\nВода\n(ဗာ-ဒါး)\nရေ",
-        14: "🇷🇺 Lesson 14: Bread\n\nХле็บ\n(ခလျပ်)\nပေါင်မုန့်",
+        14: "🇷🇺 Lesson 14: Bread\n\nХлеб\n(ခလျပ်)\nပေါင်မုန့်",
         15: "🇷🇺 Lesson 15: Family\n\nСемья\n(ဆိမျ-ယာ)\nမိသားစု",
         16: "🇷🇺 Lesson 16: Mother\n\nМама\n(မား-မား)\nအမေ",
         17: "🇷🇺 Lesson 17: Father\n\nПапа\n(ပား-ပား)\nအဖေ",
@@ -40,18 +39,31 @@ def get_daily_content():
         30: "🇷🇺 Lesson 30: Good luck\n\nУдачи!\n(အူ-ဒါး-ချီ)\nကံကောင်းပါစေ!"
     }
 
-    # စမ်းသပ်ရန်: လက်ရှိမိနစ်ကို ၅ နဲ့စားပြီး Lesson Index ယူခြင်း
     now = datetime.datetime.now()
-    lesson_index = (now.minute // 2) + 1 # ပိုမြန်အောင် ၂ မိနစ်တစ်ခါ ပြောင်းကြည့်ရအောင်
+    lesson_index = (now.minute // 2) + 1
     
     return lessons.get(lesson_index, lessons[1])
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
+    
+    # Inline Keyboard Buttons ပြင်ဆင်ခြင်း
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "📞 Call / Viber", "url": "viber://add?number=959693548605"},
+                {"text": "📱 TikTok", "url": "https://www.tiktok.com/@miorusskiy?_r=1&_t=ZS-95rcAOW6Qgk"}
+            ]
+        ]
+    }
+
+    caption_text = f"{text}\n\n<b>သင်တန်းအပ်ရန်နှင့် အသေးစိတ်စုံစမ်းရန်-</b>"
+    
     payload = {
         "chat_id": CHAT_ID,
-        "text": f"{text}\n\n---\nMioRussianLanguage Center",
-        "parse_mode": "HTML"
+        "text": f"{caption_text}\n\n---\nMioRussianLanguage Center",
+        "parse_mode": "HTML",
+        "reply_markup": keyboard
     }
     requests.post(url, json=payload)
 
