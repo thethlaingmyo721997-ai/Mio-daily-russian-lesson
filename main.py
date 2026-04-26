@@ -1,22 +1,27 @@
-name: Daily Russian Bot
-on:
-  schedule:
-    - cron: '30 2 * * *' # မြန်မာစံတော်ချိန် မနက် ၉ နာရီ
-  workflow_dispatch: # ကိုယ်တိုင် လက်နဲ့ စမ်းနှိပ်လို့ရအောင်
+import os
+import requests
+import datetime
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-      - name: Install dependencies
-        run: pip install requests
-      - name: Run Script
-        env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python main.py
+# GitHub Secrets မှ အချက်အလက်ယူခြင်း
+API_TOKEN = os.getenv('BOT_TOKEN')
+CHAT_ID = os.getenv('CHAT_ID')
+
+def send_message(text):
+    if not API_TOKEN or not CHAT_ID:
+        print("Error: API_TOKEN or CHAT_ID is missing!")
+        return
+    url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": text}
+    try:
+        response = requests.post(url, json=payload)
+        if response.status_code == 200:
+            print("Successfully sent to Telegram!")
+        else:
+            print(f"Failed with status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    today = datetime.datetime.now().strftime("%d %B %Y")
+    content = f"🇷🇺 Russian Lesson for {today}\n\nWord: Учить (U-cheet)\nMeaning: သင်ယူသည်\nExample: Я учу русский язык.\n\n🎬 TikTok: ရုရှားစာကို အတူတူလေ့လာကြရအောင်!"
+    send_message(content)
