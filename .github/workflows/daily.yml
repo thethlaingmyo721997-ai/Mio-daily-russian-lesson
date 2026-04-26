@@ -1,7 +1,7 @@
-name: Mio Russian Daily Lessons
+name: Send Daily Lessons
 
 on:
- schedule:
+  schedule:
     # မြန်မာစံတော်ချိန် မနက် ၈:၃၀၊ နေ့လယ် ၂:၃၀၊ ည ၈:၃၀ (ခန့်မှန်းခြေ)
     - cron: '0 2 * * *'   # 8:30 AM MMT
     - cron: '0 8 * * *'   # 2:30 PM MMT
@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4  # ဒီနေရာကို ပြင်လိုက်ပါပြီ
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
