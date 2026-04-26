@@ -1,10 +1,12 @@
 name: Mio Russian Daily Lessons
 
 on:
-  schedule:
-# ၅ မိနစ်တစ်ခါ အလုပ်လုပ်
-    - cron: '*/5 * * * *'
-  workflow_dispatch:
+ schedule:
+    # မြန်မာစံတော်ချိန် မနက် ၈:၃၀၊ နေ့လယ် ၂:၃၀၊ ည ၈:၃၀ (ခန့်မှန်းခြေ)
+    - cron: '0 2 * * *'   # 8:30 AM MMT
+    - cron: '0 8 * * *'   # 2:30 PM MMT
+    - cron: '0 14 * * *'  # 8:30 PM MMT
+  workflow_dispatch:      # Manual နှိပ်လို့ရအောင် ထားထားခြင်း
 
 jobs:
   send-lesson:
