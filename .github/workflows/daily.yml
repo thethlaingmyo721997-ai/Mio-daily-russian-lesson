@@ -2,12 +2,12 @@ name: Send Daily Lessons
 
 on:
   schedule:
-    # မနက် ၉:၀၀ (UTC 2:30)
-    - cron: '30 2 * * *'
-    # နေ့လည် ၁၂:၀၀ (UTC 5:30)
-    - cron: '30 5 * * *'
-    # ညနေ ၃:၀၀ (UTC 8:30)
-    - cron: '30 8 * * *'
+    # မနက် ၉:၃၀ (UTC 3:00)
+    - cron: '0 3 * * *'
+    # နေ့လည် ၁၂:၃၀ (UTC 6:00)
+    - cron: '0 6 * * *'
+    # ညနေ ၃:၃၀ (UTC 9:00)
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: ambassadors/setup-python@v2
+        uses: actions/setup-python@v4  # ဒီနေရာကို ပြင်လိုက်ပါပြီ
         with:
-          python-version: '3.x'
+          python-version: '3.9'
 
       - name: Install dependencies
         run: pip install requests
