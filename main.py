@@ -7,6 +7,7 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
+    # သင်ခန်းစာ ၃၀ လုံး
     lessons = {
         1: "🇷🇺 Greetings\n\n<code>Word:\tПривет\t(ပရီ-ဗျက်)\nMeaning:\tမင်္ဂလာပါ</code>",
         2: "🇷🇺 Gratitude\n\n<code>Word:\tСпасибо\t(စပါ-စီး-ဗား)\nMeaning:\tကျေးဇူးတင်ပါတယ်</code>",
@@ -39,44 +40,39 @@ def get_daily_content():
         29: "🇷🇺 Love\n\n<code>Word:\tЯ люблю тебя\t(ယာ လျူ-ဗလျူ တီ-ဗျာ)\nMeaning:\tချစ်တယ်</code>",
         30: "🇷🇺 Good luck\n\n<code>Word:\tУдачи!\t(အူ-ဒါး-ချီ)\nMeaning:\tကံကောင်းပါစေ!</code>"
     }
-    
+
     now = datetime.datetime.now()
-    lesson_index = (now.minute // 5) + 1
+    day = now.day
+    hour = now.hour  # လက်ရှိနာရီကို ကြည့်မယ်
+
+    # နာရီပေါ်မူတည်ပြီး Lesson ခွဲပို့ခြင်း (ဥပမာ- မနက် Lesson 1 ဆိုရင် နေ့လယ် Lesson 2 ပို့ဖို့)
+    # ဒါမှ ၃ ကြိမ်စလုံး တစ်မျိုးတည်း မဖြစ်မှာပါ
+    if hour < 10:    # မနက်ပိုင်း
+        idx = (day * 3 - 2)
+    elif hour < 16:  # နေ့လယ်ပိုင်း
+        idx = (day * 3 - 1)
+    else:            # ညပိုင်း
+        idx = (day * 3)
+
+    # ၃၀ ကျော်သွားရင် ၃၀ မှာပဲ ရပ်ထားရန်
+    lesson_index = idx if idx <= 30 else 30
     return lessons.get(lesson_index, lessons[1])
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
-    
-    # ခလုတ်ထဲမှာ TikTok ကိုပဲ ထားပါမည် (Error ကင်းစေရန်)
     keyboard = {
-        "inline_keyboard": [
-            [
-                {"text": "📱 TikTok Channel", "url": "https://www.tiktok.com/@miorusskiy"}
-            ]
-        ]
+        "inline_keyboard": [[
+            {"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"},
+            {"text": "📞 Call Mio", "url": "https://p-m.me/959693548605"}
+        ]]
     }
-
-    # Viber link ကို စာသားထဲမှာ တိုက်ရိုက်နှိပ်လို့ရအောင် ထည့်ထားပေးပါသည်
-    # viber://chat?number=... format သည် App ကို တိုက်ရိုက်ပွင့်စေပါသည်
-    viber_link = "viber://chat?number=+959693548605"
-    
-    caption_text = (
-        f"{text}\n\n"
-        f"<b>သင်တန်းစုံစမ်းရန်:</b>\n"
-        f"💬 <a href='{viber_link}'>Viber: +959693548605</a>\n"
-        f"📞 Call Phone: 09693548605"
-    )
-
     payload = {
         "chat_id": str(CHAT_ID).strip(),
-        "text": f"<b>{caption_text}\n---\nMioRussianLanguage Center</b>",
+        "text": f"{text}\n\n<b>သင်တန်းစုံစမ်းရန်:</b>\n---\nMioRussianLanguage Center",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
-    
-    r = requests.post(url, json=payload)
-    print(f"Status: {r.status_code}, Response: {r.text}")
+    requests.post(url, json=payload)
 
 if __name__ == "__main__":
-    message = get_daily_content()
-    send_message(message)
+    send_message(get_daily_content())
