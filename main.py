@@ -87,7 +87,7 @@ def send_message(text):
 
     payload = {
         "chat_id": str(CHAT_ID).strip(),
-        "text": f"<b>{caption_text}\n---\nMioRussianLanguage Center</b>",
+        "text": f"{caption_text}\n---\n<b>MioRussianLanguage Center</b>",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
