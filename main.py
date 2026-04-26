@@ -7,7 +7,6 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၃၀ (Lesson နံပါတ်များ ဖြုတ်ထားပါသည်)
     lessons = {
         1: "🇷🇺 Greetings\n\nПривет (ပရီ-ဗျက်)\nမင်္ဂလာပါ",
         2: "🇷🇺 Gratitude\n\nСпасибо (စပါ-စီး-ဗား)\nကျေးဇူးတင်ပါတယ်",
@@ -41,19 +40,20 @@ def get_daily_content():
         30: "🇷🇺 Good luck\n\nУдачи! (အူ-ဒါး-ချီ)\nကံကောင်းပါစေ!"
     }
     
-    # စမ်းသပ်ရန်အတွက် မိနစ်အလိုက် ပြောင်းလဲခြင်း
+    # စမ်းသပ်ရန်: လက်ရှိမိနစ်ကို ၅ နဲ့စားပြီး Lesson ပြောင်းခြင်း
     now = datetime.datetime.now()
-    lesson_index = (now.minute // 2) + 1
+    lesson_index = (now.minute // 5) + 1
     return lessons.get(lesson_index, lessons[1])
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     
+    # ခလုတ်များ (Viber Link ကို စိတ်ချရဆုံး ပုံစံသို့ ပြောင်းထားသည်)
     keyboard = {
         "inline_keyboard": [
             [
                 {"text": "📞 Direct Call", "url": "tel:+959693548605"},
-                {"text": "💬 Viber Chat", "url": "viber://contact?number=%2B959693548605"}
+                {"text": "💬 Viber Chat", "url": "https://viber.click/959693548605"}
             ],
             [
                 {"text": "📱 TikTok Channel", "url": "https://www.tiktok.com/@miorusskiy"}
@@ -68,7 +68,10 @@ def send_message(text):
         "reply_markup": json.dumps(keyboard)
     }
     
-    requests.post(url, json=payload)
+    response = requests.post(url, json=payload)
+    # Debug လုပ်ရန် print ထုတ်ခြင်း
+    print(f"Status Code: {response.status_code}")
+    print(f"Response Text: {response.text}")
 
 if __name__ == "__main__":
     message = get_daily_content()
