@@ -92,7 +92,7 @@ def send_message(text):
 
     today = datetime.datetime.now().strftime("%d %B %Y")
 
-    formatted_text = f"📅 {today}\n\n{text}\n\-------------- \nMioRussianLanguage Center"
+    formatted_text = f"📅 {today}\n\n{text}\n\________ \nMioRussianLanguage Center"
 
     
 
