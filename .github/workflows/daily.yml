@@ -1,4 +1,4 @@
-name: Send Daily Lessons
+name: Mio Russian Daily Lessons
 
 on:
   schedule:
