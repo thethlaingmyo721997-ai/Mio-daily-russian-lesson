@@ -5,53 +5,66 @@ import datetime
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
-def get_daily_content():
-    # ရက် ၃၀ စာ သင်ခန်းစာများ
-    lessons = {
-        1: "Привет (Pre-vyet) - မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
-        2: "Спасибо (Spa-see-ba) - ကျေးဇူးတင်ပါတယ်",
-        3: "Пожалуйста (Pa-zhal-sta) - ရပါတယ် / ကျေးဇူးပြု၍",
-        4: "Да (Da) - ဟုတ်ကဲ့ / Нет (Nyet) - မဟုတ်ဘူး",
-        5: "Как дела? (Kak dye-la) - နေကောင်းလား?",
-        6: "Доброе утро (Dob-ro-ye ut-ro) - မင်္ဂလာနံနက်ခင်းပါ",
-        7: "Меня зовут... (Me-nya za-vut) - ကျွန်တော့်နာမည်က... ပါ",
-        8: "Я понимаю (Ya po-ni-ma-yu) - ကျွန်တော် နားလည်ပါတယ်",
-        9: "Я не понимаю (Ya nye po-ni-ma-yu) - ကျွန်တော် နားမလည်ပါဘူး",
-        10: "Сколько стоит? (Skol-ko sto-it) - ဒါ ဘယ်လောက်လဲ?",
-        11: "Где туалет? (Gdye tu-a-lyet) - အိမ်သာ ဘယ်မှာလဲ?",
-        12: "Извините (Iz-vi-ni-tye) - တောင်းပန်ပါတယ် / တစ်ဆိပ်လောက်",
-        13: "Хорошо (Ha-ra-sho) - ကောင်းပြီ / အိုကေ",
-        14: "Плохо (Plo-ha) - မကောင်းဘူး",
-        15: "Я люблю тебя (Ya lyub-lyu tyeb-ya) - မင်းကို ချစ်တယ်",
-        16: "Друг (Drug) - သူငယ်ချင်း",
-        17: "Вода (Va-da) - ရေ",
-        18: "Хлеб (Khlyeb) - ပေါင်မုန့်",
-        19: "Мама (Ma-ma) - အမေ / Папа (Pa-pa) - အဖေ",
-        20: "Семья (Syem-ya) - မိသားစု",
-        21: "Работа (Ra-bo-ta) - အလုပ်",
-        22: "Машина (Ma-shi-na) - ကား",
-        23: "Город (Go-rat) - မြို့",
-        24: "Дом (Dom) - အိမ်",
-        25: "Школа (Shko-la) - ကျောင်း",
-        26: "Учитель (U-chi-tyel) - ဆရာ",
-        27: "Книга (Kni-ga) - စာအုပ်",
-        28: "Время (Vrye-mya) - အချိန်",
-        29: "Сегодня (Sye-vod-nya) - ဒီနေ့",
-        30: "Завтра (Zav-tra) - မနက်ဖြန်"
+def get_lesson_by_time():
+    now = datetime.datetime.now()
+    # မြန်မာစံတော်ချိန် တွက်ချက်ခြင်း (UTC + 6:30)
+    hour = (now.hour + 6) % 24
+    day_of_month = now.day
+
+    # --- မနက်ခင်း: နှုတ်ဆက်စကား (Greetings) ---
+    morning_lessons = {
+        1: "Привет (ပရီ-ဗျက်) - မင်္ဂလာပါ",
+        2: "Доброе утро (ဒိုး-ဘရွဲ အူ-ထရို) - မင်္ဂလာနံနက်ခင်းပါ",
+        3: "Здравствуйте (ဇဒရပ်-တ်စ-ဗွီ-ကျဲ) - မင်္ဂလာပါ (အများဆိုင်)",
+        4: "Как дела? (ကပ် ဒီ-လား) - နေကောင်းလား?",
+        5: "Приятно познакомиться (ပရီ-ယတ်-နာ ပါ-ဇနာ-ကို-မစ်-ဆာ) - တွေ့ရတာ ဝမ်းသာပါတယ်",
+        # ... (ကျန်တဲ့ရက်တွေအတွက်လည်း ဒီပုံစံအတိုင်း ဖြည့်နိုင်ပါတယ်)
     }
-    
-    day_of_month = datetime.datetime.now().day
-    content = lessons.get(day_of_month, lessons[1])
-    return content
+
+    # --- နေ့လည်ခင်း: စကားပြော (Phrases) ---
+    afternoon_lessons = {
+        1: "Меня зовут... (မိ-ညာ ဇာ-ဗွတ်...) - ကျွန်တော့်နာမည်က... ပါ",
+        2: "Я из Мьянмы (ယာ အစ် မြန်း-မား) - ကျွန်တော် မြန်မာနိုင်ငံကပါ",
+        3: "Сколько это стоит? (စကိုးလ်-ကာ အက်-တာ စတိုး-အစ်) - ဒါ ဘယ်လောက်လဲ?",
+        4: "Я понимаю (ယာ ပါ-နီ-မာ-ယူ) - ကျွန်တော် နားလည်ပါတယ်",
+        5: "Помогите мне (ပါ-မာ-ဂီး-ကျဲ မိ-ညဲ) - ကျွန်တော့်ကို ကူညီပါ",
+    }
+
+    # --- ညနေခင်း: ဝေါဟာရ (Vocabulary) ---
+    evening_lessons = {
+        1: "Вода (ဗာ-ဒါး) - ရေ",
+        2: "Хлеб (ခလျပ်) - ပေါင်မုန့်",
+        3: "Машина (မာ-ရှီး-နား) - ကား",
+        4: "Дом (ဒုမ်း) - အိမ်",
+        5: "Книга (ကနီး-ဂါး) - စာအုပ်",
+    }
+
+    # အချိန်အလိုက် သင်ခန်းစာ ရွေးချယ်ခြင်း
+    if 7 <= hour <= 10:
+        lesson = morning_lessons.get(day_of_month, morning_lessons[1])
+        header = "☀️ <b>မနက်ခင်း နှုတ်ဆက်စကား သင်ခန်းစာ</b>"
+    elif 11 <= hour <= 13:
+        lesson = afternoon_lessons.get(day_of_month, afternoon_lessons[1])
+        header = "🌤 <b>နေ့လည်ခင်း စကားပြော သင်ခန်းစာ</b>"
+    elif 14 <= hour <= 17:
+        lesson = evening_lessons.get(day_of_month, evening_lessons[1])
+        header = "☕ <b>ညနေခင်း ဝေါဟာရ သင်ခန်းစာ</b>"
+    else:
+        return None # သတ်မှတ်ချိန်မဟုတ်ရင် စာမပို့ပါ
+
+    return f"{header}\n\n{lesson}"
 
 def send_message(text):
-    today = datetime.datetime.now().strftime("%d %B %Y")
-    # ဒီနေရာမှာ TikTok စာသားကို ဖြုတ်ထားပါတယ်
-    formatted_text = f"🇷🇺 Russian Lesson for {today}\n\n{text}"
+    if text is None: return
     
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
-    requests.post(url, json={"chat_id": CHAT_ID, "text": formatted_text})
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": f"{text}\n\n---\nMioRussianLanguage Center",
+        "parse_mode": "HTML"
+    }
+    requests.post(url, json=payload)
 
 if __name__ == "__main__":
-    message = get_daily_content()
+    message = get_lesson_by_time()
     send_message(message)
