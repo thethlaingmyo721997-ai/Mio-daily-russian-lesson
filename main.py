@@ -130,6 +130,7 @@ def send_message(text):
     payload = {
         "chat_id": str(CHAT_ID).strip(),
         "text": f"{text}\n\n<b>Mio Test Mode (Hourly)</b>",
+        "text": f"{text}{footer}",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
