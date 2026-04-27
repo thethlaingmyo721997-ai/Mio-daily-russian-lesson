@@ -4,12 +4,38 @@ import datetime
 import json
 import re
 
-# GitHub Secrets ထဲကနေ Token နဲ့ Chat ID ကို ယူပါတယ်
+# GitHub Secrets များမှ data ယူခြင်း
+# (GIST_ID နဲ့ GH_TOKEN ကို Secrets ထဲမှာ ထည့်ထားဖို့ လိုပါတယ်)
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
+GIST_ID = os.getenv('GIST_ID')   
+GH_TOKEN = os.getenv('GH_TOKEN') 
 
-def get_daily_content():
-    # သင်ခန်းစာ ၉၀ လုံး
+def get_current_index():
+    """Gist ထဲကနေ နောက်ဆုံးပို့ခဲ့တဲ့ Lesson ID ကို ဖတ်ပါတယ်"""
+    try:
+        url = f"https://api.github.com/gists/{GIST_ID}"
+        headers = {"Authorization": f"token {GH_TOKEN}"}
+        r = requests.get(url, headers=headers)
+        gist_data = r.json()
+        # lesson_counter.txt ထဲက နံပါတ်ကို ယူပါတယ်
+        content = gist_data['files']['lesson_counter.txt']['content']
+        return int(content)
+    except Exception as e:
+        print(f"Error reading Gist: {e}")
+        return 1 # Error ဖြစ်ရင် နံပါတ် ၁ ကနေ ပြန်စပါမယ်
+
+def update_index(new_index):
+    """ပို့ပြီးသွားရင် နံပါတ်ကို +1 တိုးပြီး Gist ထဲမှာ ပြန်သိမ်းပါတယ်"""
+    if new_index > 90: new_index = 1 # Lesson ၉၀ ပြည့်သွားရင် ၁ ကနေ ပြန်စမယ်
+    
+    url = f"https://api.github.com/gists/{GIST_ID}"
+    headers = {"Authorization": f"token {GH_TOKEN}"}
+    data = {"files": {"lesson_counter.txt": {"content": str(new_index)}}}
+    requests.patch(url, headers=headers, json=data)
+
+def get_daily_content(idx):
+    # သင်ခန်းစာ ၉၀ လုံး (Mio ရဲ့ Lessons အားလုံးကို ဒီမှာ ထည့်ထားပါ)
     lessons = {
         1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
@@ -42,7 +68,7 @@ def get_daily_content():
         29: "🇷🇺 Lesson 29: Number 0\n\nWord: Ноль (နိုးလ်)\nMeaning: သုည",
         30: "🇷🇺 Lesson 30: Hundred\n\nWord: Сто (စတိုး)\nMeaning: တစ်ရာ",
         31: "🇷🇺 Lesson 31: Father\n\nWord: Папа (ပါး-ပါး)\nMeaning: အဖေ",
-        32: "🇷🇺 Lesson 32: Mother\n\nWord: Мама (မား-မား)\nMeaning: အမေ",
+        32: "🇷🇺 Lesson 32: Mother\n\nWord: Мама (မား-မား)\nMeaning: အေမ",
         33: "🇷🇺 Lesson 33: Family\n\nWord: Семья (ဆင်မ်-ယား)\nMeaning: မိသားစု",
         34: "🇷🇺 Lesson 34: Today\n\nWord: Сегодня (စီး-ဗိုး-ဒနီး-ယာ)\nMeaning: ဒီနေ့",
         35: "🇷🇺 Lesson 35: Tomorrow\n\nWord: Завтра (ဇားဖ်-တြာ)\nMeaning: မနက်ဖြန်",
@@ -103,60 +129,48 @@ def get_daily_content():
         90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (အူ-ဒါး-ချီ)\nMeaning: ကံကောင်းပါစေ!"
     }
 
-    # မြန်မာစံတော်ချိန် (UTC+6:30)
-    now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
-    
-    # ၁၅ မိနစ်တစ်ခါ Lesson တိုးရန်
-    minute_part = now.minute // 15
-    idx = (now.hour * 4) + minute_part + 1
-    
-    if idx > 90: idx = 90
-    if idx < 1: idx = 1
-    
     raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
     
-    # Lesson နံပါတ်ကို ဖယ်ထုတ်ခြင်း
+    # Lesson နံပါတ် ဖယ်ထုတ်ခြင်း (Clean message)
     final_content = re.sub(r'Lesson \d+:', '', raw_content).strip()
-    final_content = final_content.replace('🇷🇺  ', '🇷🇺 ')
-
-    return final_content
+    return final_content.replace('🇷🇺  ', '🇷🇺 ')
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
-    
     keyboard = {
         "inline_keyboard": [
             [{"text": "📱 TikTok မှာလေ့လာရန်", "url": "https://www.tiktok.com/@miorusskiy"}],
             [{"text": "ℹ️ သင်တန်းအသေးစိတ်ဖတ်ရန်", "url": "https://telegra.ph/Mio-Russian-Language-A1-Level-04-27"}]
         ]
     }
-
     footer = (
         f"\n\n<b>MioRussianLanguage Center</b>\n"
         f"------------------------------\n"
         f"<b>သင်တန်းစုံစမ်းရန်</b>\n"
         f"<b>Viber/Phone : +959693548605</b>\n"
     )
-
     payload = {
         "chat_id": str(CHAT_ID).strip(),
         "text": f"{text}{footer}",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
-    
-    r = requests.post(url, json=payload)
-    print(f"Status: {r.status_code}")
+    requests.post(url, json=payload)
 
 if __name__ == "__main__":
-    # လက်ရှိ မြန်မာစံတော်ချိန်ကို ယူပါတယ်
+    # လက်ရှိ မြန်မာစံတော်ချိန်ကို ယူပါမယ်
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
     current_hour = now.hour
 
-    # Logic: မနက် ၈ နာရီ ကနေ ည ၁၂ (၂၄ နာရီ) အတွင်းဖြစ်မှ စာပို့ပါမယ်
-    # (8 <= hour < 24) ဆိုသည်မှာ 08:00 ကနေ 23:59 အထိ ဖြစ်ပါသည်
+    # မနက် ၈ နာရီမှ ည ၁၂ နာရီ (၂၄ နာရီ) အတွင်းဖြစ်မှ စာပို့ပါမယ်
     if 8 <= current_hour < 24:
-        message = get_daily_content()
+        # ၁။ ဘယ်နံပါတ်ရောက်နေလဲ Gist ကနေ ဖတ်တယ်
+        current_idx = get_current_index()
+        # ၂။ အဲ့ဒီနံပါတ်နဲ့ စာသားယူတယ်
+        message = get_daily_content(current_idx)
+        # ၃။ Telegram ကို ပို့တယ်
         send_message(message)
+        # ၄။ နံပါတ်ကို ၁ တိုးပြီး Gist မှာ ပြန်သိမ်းတယ် (နောက်တစ်ခါအတွက်)
+        update_index(current_idx + 1)
     else:
-        print(f"Skipping: Hour is {current_hour}. Bot only runs 08:00 - 00:00")
+        print(f"Silent period: {current_hour} hr. No message sent.")
