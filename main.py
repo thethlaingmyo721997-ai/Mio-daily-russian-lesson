@@ -2,11 +2,13 @@ import os
 import requests
 import datetime
 import json
+import re
 
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
+    # သင်ခန်းစာ ၉၀ လုံး
     lessons = {
         1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
@@ -78,10 +80,10 @@ def get_daily_content():
         68: "🇷🇺 Lesson 68: Rain\n\nWord: Дождь (ဒိုးရှ်တ်)\nMeaning: မိုးရွာခြင်း",
         69: "🇷🇺 Lesson 69: Beautiful\n\nWord: Красиво (ကရာ-စီး-ဗား)\nMeaning: လှပတယ်",
         70: "🇷🇺 Lesson 70: Doctor\n\nWord: Врач (ဗရတ်ချ်)\nMeaning: ဆရာဝန်",
-        71: "🇷🇺 Lesson 71: Pharmacy\n\nWord: အပ္တေကာ (အပ်-ဂျဲ-ကာ)\nMeaning: ဆေးဆိုင်",
+        71: "🇷🇺 Lesson 71: Pharmacy\n\nWord: Аптека (အပ်-ဂျဲ-ကာ)\nMeaning: ဆေးဆိုင်",
         72: "🇷🇺 Lesson 72: Hospital\n\nWord: Больница (ဘယ်လ်-နီး-ဆာ)\nMeaning: ဆေးရုံ",
         73: "🇷🇺 Lesson 73: Car\n\nWord: Машина (မာ-ရှီး-နား)\nMeaning: ကား",
-        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобуး (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
+        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобус (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
         75: "🇷🇺 Lesson 75: Airport\n\nWord: Аэропорт (အာ-အီ-ရာ-ပို့တ်)\nMeaning: လေဆိပ်",
         76: "🇷🇺 Lesson 76: Speak\n\nWord: Говорить (ဂါ-ဗာ-ရီးတ့်)\nMeaning: ပြောဆိုသည်",
         77: "🇷🇺 Lesson 77: Russian\n\nWord: Русский (ရုစ်-ကီး)\nMeaning: ရုရှား",
@@ -100,7 +102,7 @@ def get_daily_content():
         90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (အူ-ဒါး-ချီ)\nMeaning: ကံကောင်းပါစေ!"
     }
 
-    # မြန်မာစံတော်ချိန် (UTC+6:30)
+    # မြန်မာစံတော်ချိန်
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
     
     # ၁၅ မိနစ်တစ်ခါ Lesson တိုးရန်
@@ -110,13 +112,12 @@ def get_daily_content():
     if idx > 90: idx = 90
     if idx < 1: idx = 1
     
-   raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
+    raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nမကြာမီ စကားလုံးအသစ်တွေ လေ့လာရပါမည်။")
     
-    # "Lesson 1:", "Lesson 2:" စတာတွေကို ရှာပြီး ဖျက်ပစ်မယ့် logic ပါ
-    import re
-    # Lesson ဆိုတဲ့ စာသားနဲ့ သူ့နောက်က နံပါတ်တွေကို ရှာပြီး ဖြုတ်လိုက်တာပါ
+    # Logic: "Lesson 1:", "Lesson 2:" စတာတွေကို ရှာပြီး ဖျက်ပစ်ခြင်း
+    # ဥပမာ- "🇷🇺 Lesson 1: Greetings" ကနေ "🇷🇺 Greetings" ဖြစ်သွားမယ်
     final_content = re.sub(r'Lesson \d+:', '', raw_content).strip()
-    # 🇷🇺 ဘေးမှာ space တွေ အများကြီး မကျန်အောင် ညှိပေးလိုက်ပါတယ်
+    # space အပိုတွေကို ညှိခြင်း
     final_content = final_content.replace('🇷🇺  ', '🇷🇺 ')
 
     return final_content
