@@ -127,7 +127,7 @@ def send_message(text):
     }
 
     footer = (
-        f"\n\n<b>MioRussianLanguage Cente</b>\n"
+        f"\n\n<b>MioRussianLanguage Center</b>\n"
         f"---------------------------\n"
         f"<b>သင်တန်းစုံစမ်းရန်</b>\n"
         f"<b>Viber/Phone : +959693548605</b>\n"
