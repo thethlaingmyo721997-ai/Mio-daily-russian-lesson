@@ -7,85 +7,67 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၃၀ လုံး
+    # သင်ခန်းစာ ၉၀ လုံး (အရင်အတိုင်း အကုန်ထည့်ထားပါ)
     lessons = {
-        1: "🇷🇺 Greetings\n\n<code>Word:\tПривет\t(ပရီ-ဗျက်)\nMeaning:\tမင်္ဂလာပါ</code>",
-        2: "🇷🇺 Gratitude\n\n<code>Word:\tСпасибо\t(စပါ-စီး-ဗား)\nMeaning:\tကျေးဇူးတင်ပါတယ်</code>",
-        3: "🇷🇺 Politeness\n\n<code>Word:\tПожалуйста\t(ပါ-ရှော-လ်စတာ)\nMeaning:\tရပါတယ်</code>",
-        4: "🇷🇺 Yes/No\n\n<code>Word:\tДа\t(ဒါး)\nMeaning:\tဟုတ်ကဲ့\n\nWord:\tНет\t(ညက်)\nMeaning:\tမဟုတ်ဘူး</code>",
-        5: "🇷🇺 Well-being\n\n<code>Word:\tКак дела?\t(ကပ် ဒီ-လား?)\nMeaning:\tနေကောင်းလား?</code>",
-        6: "🇷🇺 Introductions\n\n<code>Word:\tМеня зовут...\t(မိ-ညာ ဇာ-ဗွတ်...)\nMeaning:\tကျွန်တော့်နာမည်က... ပါ</code>",
-        7: "🇷🇺 Understanding\n\n<code>Word:\tЯ понимаю\t(ယာ ပါ-နီ-မာ-ယူ)\nMeaning:\tနားလည်ပါတယ်</code>",
-        8: "🇷🇺 Not Understanding\n\n<code>Word:\tЯ не понимаю\t(ယာ ညဲ ပါ-နီ-မာ-ယူ)\nMeaning:\tနားမလည်ပါဘူး</code>",
-        9: "🇷🇺 Farewell\n\n<code>Word:\tДо свидания\t(ဒါ့စ-ဗီ-ဒါး-နီး-ယား)\nMeaning:\tပြန်တွေ့ကြမယ်</code>",
-        10: "🇷🇺 Farewell (Casual)\n\n<code>Word:\tПока\t(ပါ-ကား)\nMeaning:\tတာ့တာ</code>",
-        11: "🇷🇺 Apology\n\n<code>Word:\tИзвините\t(အစ်ဇ်-ဗီ-နီး-ကျဲ)\nMeaning:\tတောင်းပန်ပါတယ်</code>",
-        12: "🇷🇺 Agreement\n\n<code>Word:\tХорошо\t(ဟာ-ရာ-ရှော)\nMeaning:\tကောင်းပြီ / အိုကေ</code>",
-        13: "🇷🇺 Water\n\n<code>Word:\tВода\t(ဗာ-ဒါး)\nMeaning:\tရေ</code>",
-        14: "🇷🇺 Bread\n\n<code>Word:\tХлеб\t(ခလျပ်)\nMeaning:\tပေါင်မုန့်</code>",
-        15: "🇷🇺 Family\n\n<code>Word:\tСемья\t(ဆိမျ-ယာ)\nMeaning:\tမိသားစု</code>",
-        16: "🇷🇺 Mother\n\n<code>Word:\tМама\t(မား-မား)\nMeaning:\tအမေ</code>",
-        17: "🇷🇺 Father\n\n<code>Word:\tПапа\t(ပား-ပား)\nMeaning:\tအဖေ</code>",
-        18: "🇷🇺 Friend\n\n<code>Word:\tДруг\t(ဒရုခ်)\nMeaning:\tသူငယ်ချင်း</code>",
-        19: "🇷🇺 Work\n\n<code>Word:\tРабота\t(ရာ-ဘိုး-တာ)\nMeaning:\tအလုပ်</code>",
-        20: "🇷🇺 Car\n\n<code>Word:\tМашина\t(မာ-ရှီး-နား)\nMeaning:\tကား</code>",
-        21: "🇷🇺 City\n\n<code>Word:\tГород\t(ဂိုး-ရတ်)\nMeaning:\tမြို့</code>",
-        22: "🇷🇺 House\n\n<code>Word:\tДом\t(ဒုမ်း)\nMeaning:\tအိမ်</code>",
-        23: "🇷🇺 School\n\n<code>Word:\tШкола\t(ရှကိုး-လား)\nMeaning:\tကျောင်း</code>",
-        24: "🇷🇺 Teacher\n\n<code>Word:\tУчитель\t(အူ-ချီး-ကျိလ်)\nMeaning:\tဆရာ/ဆရာမ</code>",
-        25: "🇷🇺 Book\n\n<code>Word:\tКнига\t(ကနီး-ဂါး)\nMeaning:\tစာအုပ်</code>",
-        26: "🇷🇺 Time\n\n<code>Word:\tВремя\t(ဗရီ-မျာ)\nMeaning:\tအချိန်</code>",
-        27: "🇷🇺 Today\n\n<code>Word:\tСегодня\t(စီး-ဗိုး-ဒနီး-ယာ)\nMeaning:\tဒီနေ့</code>",
-        28: "🇷🇺 Tomorrow\n\n<code>Word:\tЗавтра\t(ဇားဖ်-တြာ)\nMeaning:\tမနက်ဖြန်</code>",
-        29: "🇷🇺 Love\n\n<code>Word:\tЯ люблю тебя\t(ယာ လျူ-ဗလျူ တီ-ဗျာ)\nMeaning:\tချစ်တယ်</code>",
-        30: "🇷🇺 Good luck\n\n<code>Word:\tУдачи!\t(အူ-ဒါး-ချီ)\nMeaning:\tကံကောင်းပါစေ!</code>"
+        1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
+        2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
+        3: "🇷🇺 Lesson 3: Good morning\n\nWord: Доброе утро (ဒိုး-ဘရိုး အူ-တြာ)\nMeaning: မင်္ဂလာနံနက်ခင်းပါ",
+        4: "🇷🇺 Lesson 4: Good day\n\nWord: Добрый день (ဒိုး-ဘရီ ကျင်း)\nMeaning: မင်္ဂလာနေ့လယ်ခင်းပါ",
+        5: "🇷🇺 Lesson 5: Good evening\n\nWord: Добрый вечер (ဒိုး-ဘရီ ဗျဲ-ချယ်)\nMeaning: မင်္ဂလာညနေခင်းပါ",
+        6: "🇷🇺 Lesson 6: Farewell\n\nWord: До свидания (ဒါ-စဝီ-ဒါး-နီး-ယာ)\nMeaning: ပြန်တွေ့ကြမယ်",
+        7: "🇷🇺 Lesson 7: Gratitude\n\nWord: Спасибо (စပါ-စီး-ဗား)\nMeaning: ကျေးဇူးတင်ပါတယ်",
+        8: "🇷🇺 Lesson 8: Politeness\n\nWord: Пожалуйста (ပါ-ရှော-လ်စတာ)\nMeaning: ရပါတယ် / ကျေးဇူးပြု၍",
+        9: "🇷🇺 Lesson 9: Apology\n\nWord: Извините (အစ်ဇ်-ဝီ-နီး-ကျီ)\nMeaning: တောင်းပန်ပါတယ် / ခွင့်လွှတ်ပါ",
+        10: "🇷🇺 Lesson 10: Yes/No\n\nWord: Да / Нет (ဒါး / ညက်)\nMeaning: ဟုတ်ကဲ့ / မဟုတ်ဘူး",
+        11: "🇷🇺 Lesson 11: Okay\n\nWord: Хорошо (ဟာ-ရာ-ရှိုး)\nMeaning: ကောင်းပါပြီ / အိုကေ",
+        12: "🇷🇺 Lesson 12: How are you?\n\nWord: Как дела? (ကပ် ဒီ-လား?)\nMeaning: နေကောင်းလား?",
+        13: "🇷🇺 Lesson 13: Name\n\nWord: Меня зовут... (မိ-ညာ ဇာ-ဗွတ်...)\nMeaning: ကျွန်တော့်နာမည်က... ပါ",
+        14: "🇷🇺 Lesson 14: Nice to meet you\n\nWord: Приятно познакомиться\nMeaning: တွေ့ရတာ ဝမ်းသာပါတယ်",
+        15: "🇷🇺 Lesson 15: Friend\n\nWord: Мой друг (မွိုင်း ဒရုခ်)\nMeaning: ကျွန်တော့်သူငယ်ချင်း",
+        16: "🇷🇺 Lesson 16: I understand\n\nWord: Я понимаю (ယာ ပါ-နီ-မား-ယူး)\nMeaning: ကျွန်တော် နားလည်ပါတယ်",
+        17: "🇷🇺 Lesson 17: I don't understand\n\nWord: Я не понимаю\nMeaning: ကျွန်တော် နားမလည်ပါဘူး",
+        18: "🇷🇺 Lesson 18: Please repeat\n\nWord: Повторите, пожалуйста\nMeaning: နောက်တစ်ခေါက်လောက်ပြောပေးပါ",
+        19: "🇷🇺 Lesson 19: Number 1\n\nWord: Один (အာ-ဂျင်း)\nMeaning: တစ်",
+        20: "🇷🇺 Lesson 20: Number 2\n\nWord: Два (ဒွါး)\nMeaning: နှစ်",
     }
     
-    # မြန်မာစံတော်ချိန် တွက်ချက်ခြင်း
+    # မြန်မာစံတော်ချိန် ယူခြင်း
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
+    day = now.day
     hour = now.hour
 
-    # အချိန်ပေါ်မူတည်ပြီး Lesson နံပါတ်ရွေးခြင်း
-    # မနက်ပိုင်း (၉ နာရီဝန်းကျင်) ဆိုလျှင် Lesson 1
-    if hour < 11:
-        idx = 1
-    # နေ့လယ်ပိုင်း (၁၂ နာရီဝန်းကျင်) ဆိုလျှင် Lesson 2
-    elif hour < 14:
-        idx = 2
-    # ညနေပိုင်း (၃ နာရီဝန်းကျင်) ဆိုလျှင် Lesson 3
-    else:
-        idx = 3
+    # --- ဧပြီ ၂၇ မှ စမ်းသပ်ရန် Logic ---
+    # ဒီနေ့ (၂၇ ရက်) ကို Day 1 လို့ သတ်မှတ်ဖို့ ၂၆ နှုတ်ပါမည်။
+    # ၂၇ ရက်နေ့ဆိုရင် (27 - 26) = Day 1 ဖြစ်သွားပါမည်။
+    # ၂၈ ရက်နေ့ဆိုရင် (28 - 26) = Day 2 ဖြစ်သွားပါမည်။
+    
+    test_day = day - 26 
+    
+    if test_day < 1: test_day = 1 # အကယ်၍ ၂၇ မတိုင်ခင် ရက်တွေဖြစ်နေခဲ့ရင်
 
+    if hour < 11:
+        idx = (test_day * 3 - 2)
+    elif hour < 14:
+        idx = (test_day * 3 - 1)
+    else:
+        idx = (test_day * 3)
+
+    if idx > 90: idx = 90
+    
     return lessons.get(idx, lessons[1])
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
+    keyboard = {"inline_keyboard": [[{"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"}]]}
     
-    keyboard = {
-        "inline_keyboard": [[
-            {"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"},
-            {"text": "📱 TikTok", "url": "https://www.tiktok.com/@miorusskiy"}
-        ]]
-    }
-
-    caption_text = (
-        f"{text}\n\n"
-        f"<b>သင်တန်းစုံစမ်းရန်:</b>\n"
-        f"Viber: +959693548605\n"
-        f"Phone: +959693548605\n"
-        f"---\n"
-        f"MioRussianLanguage Center"
-    )
-
     payload = {
         "chat_id": str(CHAT_ID).strip(),
-        "text": caption_text,
+        "text": f"{text}\n\n<b>MioRussianLanguage Center</b>",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
-    
     r = requests.post(url, json=payload)
-    print(f"Status: {r.status_code}, Sent Lesson: {text.splitlines()[0]}")
+    print(f"Status: {r.status_code}, Sent Lesson Index: {text.splitlines()[0]}")
 
 if __name__ == "__main__":
     message = get_daily_content()
