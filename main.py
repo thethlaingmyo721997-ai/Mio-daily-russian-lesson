@@ -4,6 +4,7 @@ import datetime
 import json
 import re
 
+# GitHub Secrets ထဲကနေ Token နဲ့ Chat ID ကို ယူပါတယ်
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
@@ -102,7 +103,7 @@ def get_daily_content():
         90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (အူ-ဒါး-ချီ)\nMeaning: ကံကောင်းပါစေ!"
     }
 
-    # မြန်မာစံတော်ချိန်
+    # မြန်မာစံတော်ချိန် (UTC+6:30)
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
     
     # ၁၅ မိနစ်တစ်ခါ Lesson တိုးရန်
@@ -112,12 +113,10 @@ def get_daily_content():
     if idx > 90: idx = 90
     if idx < 1: idx = 1
     
-    raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nမကြာမီ စကားလုံးအသစ်တွေ လေ့လာရပါမည်။")
+    raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
     
-    # Logic: "Lesson 1:", "Lesson 2:" စတာတွေကို ရှာပြီး ဖျက်ပစ်ခြင်း
-    # ဥပမာ- "🇷🇺 Lesson 1: Greetings" ကနေ "🇷🇺 Greetings" ဖြစ်သွားမယ်
+    # Lesson နံပါတ်ကို ဖယ်ထုတ်ခြင်း
     final_content = re.sub(r'Lesson \d+:', '', raw_content).strip()
-    # space အပိုတွေကို ညှိခြင်း
     final_content = final_content.replace('🇷🇺  ', '🇷🇺 ')
 
     return final_content
@@ -150,5 +149,14 @@ def send_message(text):
     print(f"Status: {r.status_code}")
 
 if __name__ == "__main__":
-    message = get_daily_content()
-    send_message(message)
+    # လက်ရှိ မြန်မာစံတော်ချိန်ကို ယူပါတယ်
+    now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
+    current_hour = now.hour
+
+    # Logic: မနက် ၈ နာရီ ကနေ ည ၁၂ (၂၄ နာရီ) အတွင်းဖြစ်မှ စာပို့ပါမယ်
+    # (8 <= hour < 24) ဆိုသည်မှာ 08:00 ကနေ 23:59 အထိ ဖြစ်ပါသည်
+    if 8 <= current_hour < 24:
+        message = get_daily_content()
+        send_message(message)
+    else:
+        print(f"Skipping: Hour is {current_hour}. Bot only runs 08:00 - 00:00")
