@@ -7,7 +7,7 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၃၀ လုံးကို စနစ်တကျ ထည့်သွင်းထားခြင်း
+    # သင်ခန်းစာ ၃၀ လုံးကို စနစ်တကျ ထည့်သွင်းထားသည်
     lessons = {
         1: "🇷🇺 Greetings\n\n<code>Word:\tПривет\t(ပရီ-ဗျက်)\nMeaning:\tမင်္ဂလာပါ</code>",
         2: "🇷🇺 Gratitude\n\n<code>Word:\tСпасибо\t(စပါ-စီး-ဗား)\nMeaning:\tကျေးဇူးတင်ပါတယ်</code>",
@@ -41,27 +41,20 @@ def get_daily_content():
         30: "🇷🇺 Good luck\n\n<code>Word:\tУдачи!\t(အူ-ဒါး-ချီ)\nMeaning:\tကံကောင်းပါစေ!</code>"
     }
     
-    now = datetime.datetime.utcnow() # Server အချိန် (UTC) ကို ယူပါမည်
+    # မြန်မာစံတော်ချိန် တွက်ချက်ခြင်း
+    now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
     day = now.day
     hour = now.hour
-    minute = now.minute
 
-    # UTC 2:30 (MMT 9:00 AM)
-    if hour == 2:
+    # တစ်ရက် ၃ ကြိမ်ပို့ရန် သင်ခန်းစာ ရွေးချယ်ခြင်း
+    if hour < 11:    # မနက် ၉ နာရီ ဝန်းကျင်
         idx = (day * 3 - 2)
-    # UTC 5:30 (MMT 12:00 PM)
-    elif hour == 5:
+    elif hour < 14:  # နေ့လယ် ၁၂ နာရီ ဝန်းကျင်
         idx = (day * 3 - 1)
-    # UTC 8:30 (MMT 3:00 PM)
-    elif hour == 8:
+    else:            # ညနေ ၃ နာရီ ဝန်းကျင်
         idx = (day * 3)
-    else:
-        # Manual run လုပ်လျှင် လက်ရှိအချိန်ပေါ်မူတည်၍ တွက်ရန်
-        if hour < 4: idx = (day * 3 - 2)
-        elif hour < 7: idx = (day * 3 - 1)
-        else: idx = (day * 3)
 
-    # Lesson index limit (1-30)
+    # Lesson index သည် ၁ နှင့် ၃၀ ကြားသာ ဖြစ်ရမည်
     if idx < 1: idx = 1
     if idx > 30: idx = 30
     
@@ -70,30 +63,37 @@ def get_daily_content():
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     
+    # Error ကင်းစေရန် ခလုတ်များတွင် Standard Link သာသုံးသည်
     keyboard = {
         "inline_keyboard": [
-            [{"text": "📱 TikTok Channel", "url": "https://www.tiktok.com/@miorusskiy"}]
+            [
+                {"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"},
+                {"text": "📱 TikTok", "url": "https://www.tiktok.com/@miorusskiy"}
+            ]
         ]
     }
 
-    viber_link = "viber://chat?number=959693548605"
-    
+    # Message ထဲမှ formatting အမှားများကို ရှင်းလင်းထားသည်
     caption_text = (
         f"{text}\n\n"
         f"<b>သင်တန်းစုံစမ်းရန်:</b>\n"
-        f"💬 <a href='{viber_link}'>Viber: +959693548605</a>\n"
-        f"📞 Phone: +959693548605"
+        f"Viber: +959693548605\n"
+        f"Phone: +959693548605\n"
+        f"---\n"
+        f"MioRussianLanguage Center"
     )
 
     payload = {
         "chat_id": str(CHAT_ID).strip(),
-        "text": f"{caption_text}\n---\n<b>MioRussianLanguage Center</b>",
+        "text": caption_text,
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
     
     r = requests.post(url, json=payload)
-    print(f"Status: {r.status_code}, Response: {r.text}")
+    print(f"Status: {r.status_code}")
+    if r.status_code != 200:
+        print(f"Response: {r.text}")
 
 if __name__ == "__main__":
     message = get_daily_content()
