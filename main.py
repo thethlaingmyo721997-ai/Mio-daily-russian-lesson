@@ -7,7 +7,7 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၉၀ လုံး (အရင်အတိုင်း အပြည့်အစုံ ထည့်ထားပါ)
+    # သင်ခန်းစာ ၉၀ လုံး
     lessons = {
         1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
@@ -82,7 +82,7 @@ def get_daily_content():
         71: "🇷🇺 Lesson 71: Pharmacy\n\nWord: Аптека (အပ်-ဂျဲ-ကာ)\nMeaning: ဆေးဆိုင်",
         72: "🇷🇺 Lesson 72: Hospital\n\nWord: Больница (ဘယ်လ်-နီး-ဆာ)\nMeaning: ဆေးရုံ",
         73: "🇷🇺 Lesson 73: Car\n\nWord: Машина (မာ-ရှီး-နား)\nMeaning: ကား",
-        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобус (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
+        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобуး (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
         75: "🇷🇺 Lesson 75: Airport\n\nWord: Аэропорт (အာ-အီ-ရာ-ပို့တ်)\nMeaning: လေဆိပ်",
         76: "🇷🇺 Lesson 76: Speak\n\nWord: Говорить (ဂါ-ဗာ-ရီးတ့်)\nMeaning: ပြောဆိုသည်",
         77: "🇷🇺 Lesson 77: Russian\n\nWord: Русский (ရုစ်-ကီး)\nMeaning: ရုရှား",
@@ -101,39 +101,46 @@ def get_daily_content():
         90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (အူ-ဒါး-ချီ)\nMeaning: ကံကောင်းပါစေ!"
     }
 
-    # မြန်မာစံတော်ချိန် ယူခြင်း
+    # မြန်မာစံတော်ချိန် (UTC+6:30)
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
     
-    # --- စမ်းသပ်မှုအတွက် Logic အသစ် ---
-    # ဒီနေ့ ၂၇ ရက်နေ့ကနေစပြီး တစ်နာရီတစ်ခါ Lesson တိုးသွားအောင် တွက်ပါမယ်
-    # (လက်ရှိရက် - ၂၇) * ၂၄ နာရီ + လက်ရှိနာရီ
-    day_diff = now.day - 27
-    idx = (day_diff * 24) + now.hour
+    # ၁၅ မိနစ်တစ်ခါ Lesson တိုးရန် (စမ်းသပ်မှုအတွက်)
+    minute_part = now.minute // 15
+    idx = (now.hour * 4) + minute_part + 1
     
-    # အကယ်၍ ညသန်းခေါင်ကျော်သွားရင် Lesson ၁ ကနေ စချင်ရင် +၁ ပေါင်းပေးပါ
-    if idx <= 0: idx = 1
     if idx > 90: idx = 90
-
-    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားဖြည့်ရန် ကျန်သေးသည်")
+    if idx < 1: idx = 1
+    
+    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nသင်ခန်းစာထပ်ဖြည့်ရန် ကျန်သေးသည်")
     return content
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
-    keyboard = {"inline_keyboard": [[{"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"}]]}
+    
+    # TikTok Link တစ်ခုတည်းသာ ထည့်ထားပါသည်
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "📱 TikTok မှာလေ့လာရန်", "url": "https://www.tiktok.com/@miorusskiy"}
+            ]
+        ]
+    }
 
-        # စာသားအားလုံးကို စုစည်းခြင်း
     footer = (
-        f"\n\n<b>သင်တန်းစုံစမ်းရန်</b>\n"
+        f"\n\n<b>Mio Test Mode (Every 15 Mins)</b>\n"
+        f"---------------------------\n"
+        f"<b>သင်တန်းစုံစမ်းရန်</b>\n"
         f"<b>Viber/Phone : +959693548605</b>\n"
         f"<b>MioRussianLanguage Center</b>"
     )
+
     payload = {
         "chat_id": str(CHAT_ID).strip(),
-        "text": f"{text}\n\n<b>Mio Test Mode (Hourly)</b>",
         "text": f"{text}{footer}",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
+    
     r = requests.post(url, json=payload)
     print(f"Status: {r.status_code}, Sent Lesson: {text.splitlines()[0]}")
 
