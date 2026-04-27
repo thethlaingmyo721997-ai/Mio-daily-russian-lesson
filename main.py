@@ -7,7 +7,6 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၉၀ လုံး (Mio ရဲ့ main.py ထဲမှာ ရှိပြီးသား သင်ခန်းစာ ၉၀ လုံးကို ဒီနေရာမှာပဲ ဆက်ထားပေးပါ)
     lessons = {
         1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
@@ -40,7 +39,7 @@ def get_daily_content():
         29: "🇷🇺 Lesson 29: Number 0\n\nWord: Ноль (နိုးလ်)\nMeaning: သုည",
         30: "🇷🇺 Lesson 30: Hundred\n\nWord: Сто (စတိုး)\nMeaning: တစ်ရာ",
         31: "🇷🇺 Lesson 31: Father\n\nWord: Папа (ပါး-ပါး)\nMeaning: အဖေ",
-        32: "🇷🇺 Lesson 32: Mother\n\nWord: Мама (မား-မား)\nMeaning: အေမ",
+        32: "🇷🇺 Lesson 32: Mother\n\nWord: Мама (မား-မား)\nMeaning: အမေ",
         33: "🇷🇺 Lesson 33: Family\n\nWord: Семья (ဆင်မ်-ယား)\nMeaning: မိသားစု",
         34: "🇷🇺 Lesson 34: Today\n\nWord: Сегодня (စီး-ဗိုး-ဒနီး-ယာ)\nMeaning: ဒီနေ့",
         35: "🇷🇺 Lesson 35: Tomorrow\n\nWord: Завтра (ဇားဖ်-တြာ)\nMeaning: မနက်ဖြန်",
@@ -79,10 +78,10 @@ def get_daily_content():
         68: "🇷🇺 Lesson 68: Rain\n\nWord: Дождь (ဒိုးရှ်တ်)\nMeaning: မိုးရွာခြင်း",
         69: "🇷🇺 Lesson 69: Beautiful\n\nWord: Красиво (ကရာ-စီး-ဗား)\nMeaning: လှပတယ်",
         70: "🇷🇺 Lesson 70: Doctor\n\nWord: Врач (ဗရတ်ချ်)\nMeaning: ဆရာဝန်",
-        71: "🇷🇺 Lesson 71: Pharmacy\n\nWord: Аптека (အပ်-ဂျဲ-ကာ)\nMeaning: ဆေးဆိုင်",
+        71: "🇷🇺 Lesson 71: Pharmacy\n\nWord: အပ္တေကာ (အပ်-ဂျဲ-ကာ)\nMeaning: ဆေးဆိုင်",
         72: "🇷🇺 Lesson 72: Hospital\n\nWord: Больница (ဘယ်လ်-နီး-ဆာ)\nMeaning: ဆေးရုံ",
         73: "🇷🇺 Lesson 73: Car\n\nWord: Машина (မာ-ရှီး-နား)\nMeaning: ကား",
-        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобус (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
+        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобуး (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
         75: "🇷🇺 Lesson 75: Airport\n\nWord: Аэропорт (အာ-အီ-ရာ-ပို့တ်)\nMeaning: လေဆိပ်",
         76: "🇷🇺 Lesson 76: Speak\n\nWord: Говорить (ဂါ-ဗာ-ရီးတ့်)\nMeaning: ပြောဆိုသည်",
         77: "🇷🇺 Lesson 77: Russian\n\nWord: Русский (ရုစ်-ကီး)\nMeaning: ရုရှား",
@@ -104,28 +103,32 @@ def get_daily_content():
     # မြန်မာစံတော်ချိန် (UTC+6:30)
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
     
-    # ၁၅ မိနစ်တစ်ခါ Lesson တိုးရန် (စမ်းသပ်မှုအတွက်)
+    # ၁၅ မိနစ်တစ်ခါ Lesson တိုးရန်
     minute_part = now.minute // 15
     idx = (now.hour * 4) + minute_part + 1
     
     if idx > 90: idx = 90
     if idx < 1: idx = 1
     
-    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
-    return content
+    raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
+    
+    # ပထမဆုံးစာကြောင်း (Lesson X:) ကို ဖယ်ထုတ်ခြင်း
+    lines = raw_content.splitlines()
+    if len(lines) > 1:
+        # ဒုတိယစာကြောင်းကနေစပြီး အဆုံးထိ ပြန်ပေါင်းခြင်း
+        final_content = "\n".join(lines[1:]).strip()
+    else:
+        final_content = raw_content
+
+    return final_content
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     
-    # Button နှစ်ခုကို အပေါ်အောက် စီစဉ်ထားပါတယ်
     keyboard = {
         "inline_keyboard": [
-            [
-                {"text": "📱 TikTok မှာလေ့လာရန်", "url": "https://www.tiktok.com/@miorusskiy"}
-            ],
-            [
-                {"text": "ℹ️ သင်တန်းအသေးစိတ်ဖတ်ရန်", "url": "https://telegra.ph/Mio-Russian-Language-A1-Level-04-27"}
-            ]
+            [{"text": "📱 TikTok မှာလေ့လာရန်", "url": "https://www.tiktok.com/@miorusskiy"}],
+            [{"text": "ℹ️ သင်တန်းအသေးစိတ်ဖတ်ရန်", "url": "https://telegra.ph/Mio-Russian-Language-A1-Level-04-27"}]
         ]
     }
 
@@ -134,7 +137,6 @@ def send_message(text):
         f"------------------------------\n"
         f"<b>သင်တန်းစုံစမ်းရန်</b>\n"
         f"<b>Viber/Phone : +959693548605</b>\n"
-      
     )
 
     payload = {
@@ -145,7 +147,7 @@ def send_message(text):
     }
     
     r = requests.post(url, json=payload)
-    print(f"Status: {r.status_code}, Sent Lesson: {text.splitlines()[0]}")
+    print(f"Status: {r.status_code}")
 
 if __name__ == "__main__":
     message = get_daily_content()
