@@ -120,7 +120,13 @@ def get_daily_content():
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     keyboard = {"inline_keyboard": [[{"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"}]]}
-    
+
+        # စာသားအားလုံးကို စုစည်းခြင်း
+    footer = (
+        f"\n\n<b>သင်တန်းစုံစမ်းရန်</b>\n"
+        f"<b>Viber/Phone : +959693548605</b>\n"
+        f"<b>MioRussianLanguage Center</b>"
+    )
     payload = {
         "chat_id": str(CHAT_ID).strip(),
         "text": f"{text}\n\n<b>Mio Test Mode (Hourly)</b>",
