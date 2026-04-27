@@ -7,7 +7,7 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၃၀ လုံးကို စနစ်တကျ ထည့်သွင်းထားသည်
+    # သင်ခန်းစာ ၃၀ လုံး
     lessons = {
         1: "🇷🇺 Greetings\n\n<code>Word:\tПривет\t(ပရီ-ဗျက်)\nMeaning:\tမင်္ဂလာပါ</code>",
         2: "🇷🇺 Gratitude\n\n<code>Word:\tСпасибо\t(စပါ-စီး-ဗား)\nMeaning:\tကျေးဇူးတင်ပါတယ်</code>",
@@ -43,37 +43,31 @@ def get_daily_content():
     
     # မြန်မာစံတော်ချိန် တွက်ချက်ခြင်း
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
-    day = now.day
     hour = now.hour
 
-    # တစ်ရက် ၃ ကြိမ်ပို့ရန် သင်ခန်းစာ ရွေးချယ်ခြင်း
-    if hour < 11:    # မနက် ၉ နာရီ ဝန်းကျင်
-        idx = (day * 3 - 2)
-    elif hour < 14:  # နေ့လယ် ၁၂ နာရီ ဝန်းကျင်
-        idx = (day * 3 - 1)
-    else:            # ညနေ ၃ နာရီ ဝန်းကျင်
-        idx = (day * 3)
+    # အချိန်ပေါ်မူတည်ပြီး Lesson နံပါတ်ရွေးခြင်း
+    # မနက်ပိုင်း (၉ နာရီဝန်းကျင်) ဆိုလျှင် Lesson 1
+    if hour < 11:
+        idx = 1
+    # နေ့လယ်ပိုင်း (၁၂ နာရီဝန်းကျင်) ဆိုလျှင် Lesson 2
+    elif hour < 14:
+        idx = 2
+    # ညနေပိုင်း (၃ နာရီဝန်းကျင်) ဆိုလျှင် Lesson 3
+    else:
+        idx = 3
 
-    # Lesson index သည် ၁ နှင့် ၃၀ ကြားသာ ဖြစ်ရမည်
-    if idx < 1: idx = 1
-    if idx > 30: idx = 30
-    
     return lessons.get(idx, lessons[1])
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     
-    # Error ကင်းစေရန် ခလုတ်များတွင် Standard Link သာသုံးသည်
     keyboard = {
-        "inline_keyboard": [
-            [
-                {"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"},
-                {"text": "📱 TikTok", "url": "https://www.tiktok.com/@miorusskiy"}
-            ]
-        ]
+        "inline_keyboard": [[
+            {"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"},
+            {"text": "📱 TikTok", "url": "https://www.tiktok.com/@miorusskiy"}
+        ]]
     }
 
-    # Message ထဲမှ formatting အမှားများကို ရှင်းလင်းထားသည်
     caption_text = (
         f"{text}\n\n"
         f"<b>သင်တန်းစုံစမ်းရန်:</b>\n"
@@ -91,9 +85,7 @@ def send_message(text):
     }
     
     r = requests.post(url, json=payload)
-    print(f"Status: {r.status_code}")
-    if r.status_code != 200:
-        print(f"Response: {r.text}")
+    print(f"Status: {r.status_code}, Sent Lesson: {text.splitlines()[0]}")
 
 if __name__ == "__main__":
     message = get_daily_content()
