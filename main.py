@@ -111,7 +111,7 @@ def get_daily_content():
     if idx > 90: idx = 90
     if idx < 1: idx = 1
     
-    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားဖြည့်ရန် ကျန်သေးသည်")
+    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
     return content
 
 def send_message(text):
@@ -130,11 +130,11 @@ def send_message(text):
     }
 
     footer = (
-        f"\n\n<b>Mio Test Mode (Every 15 Mins)</b>\n"
-        f"---------------------------\n"
+        f"\n\n<b>MioRussianLanguage Center</b>\n"
+        f"------------------------------\n"
         f"<b>သင်တန်းစုံစမ်းရန်</b>\n"
         f"<b>Viber/Phone : +959693548605</b>\n"
-        f"<b>MioRussianLanguage Center</b>"
+      
     )
 
     payload = {
