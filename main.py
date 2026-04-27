@@ -166,7 +166,7 @@ if __name__ == "__main__":
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
     
     # မြန်မာစံတော်ချိန် ၈ နာရီမှ ၂၄ နာရီအတွင်းဖြစ်မှ ပို့မည်
-    if 8 <= now.hour < 24:
+    if 8 <= now.hour < 20:
         idx = get_current_index()
         message = get_daily_content(idx)
         send_message(message)
