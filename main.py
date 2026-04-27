@@ -110,15 +110,14 @@ def get_daily_content():
     if idx > 90: idx = 90
     if idx < 1: idx = 1
     
-    raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
+   raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
     
-    # ပထမဆုံးစာကြောင်း (Lesson X:) ကို ဖယ်ထုတ်ခြင်း
-    lines = raw_content.splitlines()
-    if len(lines) > 1:
-        # ဒုတိယစာကြောင်းကနေစပြီး အဆုံးထိ ပြန်ပေါင်းခြင်း
-        final_content = "\n".join(lines[1:]).strip()
-    else:
-        final_content = raw_content
+    # "Lesson 1:", "Lesson 2:" စတာတွေကို ရှာပြီး ဖျက်ပစ်မယ့် logic ပါ
+    import re
+    # Lesson ဆိုတဲ့ စာသားနဲ့ သူ့နောက်က နံပါတ်တွေကို ရှာပြီး ဖြုတ်လိုက်တာပါ
+    final_content = re.sub(r'Lesson \d+:', '', raw_content).strip()
+    # 🇷🇺 ဘေးမှာ space တွေ အများကြီး မကျန်အောင် ညှိပေးလိုက်ပါတယ်
+    final_content = final_content.replace('🇷🇺  ', '🇷🇺 ')
 
     return final_content
 
