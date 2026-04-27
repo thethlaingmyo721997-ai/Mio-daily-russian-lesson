@@ -7,9 +7,9 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၉၀ လုံး (အရင်အတိုင်း အပြည့်အစုံ ထည့်ထားပါ)
+    # သင်ခန်းစာ ၉၀ လုံး (၁ လစာ - ၁ ရက် ၃ ကြိမ်နှုန်း)
     lessons = {
-       1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
+        1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
         3: "🇷🇺 Lesson 3: Good morning\n\nWord: Доброе утро (ဒိုး-ဘရိုး အူ-တြာ)\nMeaning: မင်္ဂလာနံနက်ခင်းပါ",
         4: "🇷🇺 Lesson 4: Good day\n\nWord: Добрый день (ဒိုး-ဘရီ ကျင်း)\nMeaning: မင်္ဂလာနေ့လယ်ခင်းပါ",
@@ -100,35 +100,47 @@ def get_daily_content():
         89: "🇷🇺 Lesson 89: Peace\n\nWord: Мир (မီရ်)\nMeaning: ငြိမ်းချမ်းရေး",
         90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (အူ-ဒါး-ချီ)\nMeaning: ကံကောင်းပါစေ!"
     }
-
-    # မြန်မာစံတော်ချိန် ယူခြင်း
+    
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
-    
-    # --- စမ်းသပ်မှုအတွက် Logic အသစ် ---
-    # ဒီနေ့ ၂၇ ရက်နေ့ကနေစပြီး တစ်နာရီတစ်ခါ Lesson တိုးသွားအောင် တွက်ပါမယ်
-    # (လက်ရှိရက် - ၂၇) * ၂၄ နာရီ + လက်ရှိနာရီ
-    day_diff = now.day - 27
-    idx = (day_diff * 24) + now.hour
-    
-    # အကယ်၍ ညသန်းခေါင်ကျော်သွားရင် Lesson ၁ ကနေ စချင်ရင် +၁ ပေါင်းပေးပါ
-    if idx <= 0: idx = 1
-    if idx > 90: idx = 90
+    # မေလမဟုတ်ခင် (ဥပမာ အခု ဧပြီ) စမ်းသပ်နေရင် Day 1 လို့ သတ်မှတ်မည်
+    day = now.day if now.month == 5 else 1
+    hour = now.hour
 
-    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားဖြည့်ရန် ကျန်သေးသည်")
-    return content
+    if hour < 11:
+        idx = (day * 3 - 2)
+    elif hour < 14:
+        idx = (day * 3 - 1)
+    else:
+        idx = (day * 3)
+
+    if idx > 90: idx = 90
+    if idx < 1: idx = 1
+    
+    return lessons.get(idx, lessons[1])
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
-    keyboard = {"inline_keyboard": [[{"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"}]]}
     
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "💬 Viber Chat", "url": "https://viber.me/959693548605"},
+                {"text": "📱 TikTok", "url": "https://www.tiktok.com/@miorusskiy"}
+            ]
+        ]
+    }
+
     payload = {
         "chat_id": str(CHAT_ID).strip(),
-        "text": f"{text}\n\n<b>Mio Test Mode (Hourly)</b>",
+	"text": f"{text}\n\n<b>သင်တန်းစုံစမ်းရန်</b>"\n,
+	"text": f"{text}\n\n<b>Viber/Phone : +959693548605</b>"\n,
+        "text": f"{text}\n\n<b>MioRussianLanguage Center</b>",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
+    
     r = requests.post(url, json=payload)
-    print(f"Status: {r.status_code}, Sent Lesson: {text.splitlines()[0]}")
+    print(f"Status: {r.status_code}, Sent: {text.splitlines()[0]}")
 
 if __name__ == "__main__":
     message = get_daily_content()
