@@ -7,7 +7,7 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၉၀ လုံး
+    # သင်ခန်းစာ ၉၀ လုံး (Mio ရဲ့ main.py ထဲမှာ ရှိပြီးသား သင်ခန်းစာ ၉၀ လုံးကို ဒီနေရာမှာပဲ ဆက်ထားပေးပါ)
     lessons = {
         1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
@@ -40,7 +40,7 @@ def get_daily_content():
         29: "🇷🇺 Lesson 29: Number 0\n\nWord: Ноль (နိုးလ်)\nMeaning: သုည",
         30: "🇷🇺 Lesson 30: Hundred\n\nWord: Сто (စတိုး)\nMeaning: တစ်ရာ",
         31: "🇷🇺 Lesson 31: Father\n\nWord: Папа (ပါး-ပါး)\nMeaning: အဖေ",
-        32: "🇷🇺 Lesson 32: Mother\n\nWord: Мама (မား-မား)\nMeaning: အမေ",
+        32: "🇷🇺 Lesson 32: Mother\n\nWord: Мама (မား-မား)\nMeaning: အေမ",
         33: "🇷🇺 Lesson 33: Family\n\nWord: Семья (ဆင်မ်-ယား)\nMeaning: မိသားစု",
         34: "🇷🇺 Lesson 34: Today\n\nWord: Сегодня (စီး-ဗိုး-ဒနီး-ယာ)\nMeaning: ဒီနေ့",
         35: "🇷🇺 Lesson 35: Tomorrow\n\nWord: Завтра (ဇားဖ်-တြာ)\nMeaning: မနက်ဖြန်",
@@ -82,7 +82,7 @@ def get_daily_content():
         71: "🇷🇺 Lesson 71: Pharmacy\n\nWord: Аптека (အပ်-ဂျဲ-ကာ)\nMeaning: ဆေးဆိုင်",
         72: "🇷🇺 Lesson 72: Hospital\n\nWord: Больница (ဘယ်လ်-နီး-ဆာ)\nMeaning: ဆေးရုံ",
         73: "🇷🇺 Lesson 73: Car\n\nWord: Машина (မာ-ရှီး-နား)\nMeaning: ကား",
-        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобуး (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
+        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобус (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
         75: "🇷🇺 Lesson 75: Airport\n\nWord: Аэропорт (အာ-အီ-ရာ-ပို့တ်)\nMeaning: လေဆိပ်",
         76: "🇷🇺 Lesson 76: Speak\n\nWord: Говорить (ဂါ-ဗာ-ရီးတ့်)\nMeaning: ပြောဆိုသည်",
         77: "🇷🇺 Lesson 77: Russian\n\nWord: Русский (ရုစ်-ကီး)\nMeaning: ရုရှား",
@@ -111,27 +111,30 @@ def get_daily_content():
     if idx > 90: idx = 90
     if idx < 1: idx = 1
     
-    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nသင်ခန်းစာထပ်ဖြည့်ရန် ကျန်သေးသည်")
+    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားဖြည့်ရန် ကျန်သေးသည်")
     return content
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     
-    # TikTok Link တစ်ခုတည်းသာ ထည့်ထားပါသည်
+    # Button နှစ်ခုကို အပေါ်အောက် စီစဉ်ထားပါတယ်
     keyboard = {
         "inline_keyboard": [
             [
                 {"text": "📱 TikTok မှာလေ့လာရန်", "url": "https://www.tiktok.com/@miorusskiy"}
+            ],
+            [
+                {"text": "ℹ️ သင်တန်းအသေးစိတ်ဖတ်ရန်", "url": "https://telegra.ph/Mio-Russian-Language-A1-Level-04-27"}
             ]
         ]
     }
 
     footer = (
-        f"\n\n<b>MioRussianLanguage Center</b>\n"
+        f"\n\n<b>Mio Test Mode (Every 15 Mins)</b>\n"
         f"---------------------------\n"
         f"<b>သင်တန်းစုံစမ်းရန်</b>\n"
         f"<b>Viber/Phone : +959693548605</b>\n"
-       
+        f"<b>MioRussianLanguage Center</b>"
     )
 
     payload = {
