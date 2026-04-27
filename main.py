@@ -4,38 +4,48 @@ import datetime
 import json
 import re
 
-# GitHub Secrets များမှ data ယူခြင်း
-# (GIST_ID နဲ့ GH_TOKEN ကို Secrets ထဲမှာ ထည့်ထားဖို့ လိုပါတယ်)
+# GitHub Secrets (သေချာထည့်ထားဖို့ လိုပါတယ်)
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 GIST_ID = os.getenv('GIST_ID')   
 GH_TOKEN = os.getenv('GH_TOKEN') 
 
 def get_current_index():
-    """Gist ထဲကနေ နောက်ဆုံးပို့ခဲ့တဲ့ Lesson ID ကို ဖတ်ပါတယ်"""
+    """Gist ထဲကနေ Lesson နံပါတ်ကို ဖတ်ယူခြင်း"""
     try:
         url = f"https://api.github.com/gists/{GIST_ID}"
         headers = {"Authorization": f"token {GH_TOKEN}"}
         r = requests.get(url, headers=headers)
+        
+        if r.status_code != 200:
+            print(f"Gist Error Status: {r.status_code}")
+            return 1
+            
         gist_data = r.json()
-        # lesson_counter.txt ထဲက နံပါတ်ကို ယူပါတယ်
-        content = gist_data['files']['lesson_counter.txt']['content']
-        return int(content)
+        # ဖိုင်ရှိမရှိ သေချာစစ်ဆေးခြင်း
+        files = gist_data.get('files', {})
+        if 'lesson_counter.txt' in files:
+            return int(files['lesson_counter.txt']['content'])
+        else:
+            print("Error: 'lesson_counter.txt' not found in Gist files")
+            return 1
     except Exception as e:
-        print(f"Error reading Gist: {e}")
-        return 1 # Error ဖြစ်ရင် နံပါတ် ၁ ကနေ ပြန်စပါမယ်
+        print(f"Exception during Gist read: {e}")
+        return 1
 
 def update_index(new_index):
-    """ပို့ပြီးသွားရင် နံပါတ်ကို +1 တိုးပြီး Gist ထဲမှာ ပြန်သိမ်းပါတယ်"""
-    if new_index > 90: new_index = 1 # Lesson ၉၀ ပြည့်သွားရင် ၁ ကနေ ပြန်စမယ်
-    
-    url = f"https://api.github.com/gists/{GIST_ID}"
-    headers = {"Authorization": f"token {GH_TOKEN}"}
-    data = {"files": {"lesson_counter.txt": {"content": str(new_index)}}}
-    requests.patch(url, headers=headers, json=data)
+    """Gist ထဲက နံပါတ်ကို +1 တိုးပြီး ပြန်သိမ်းခြင်း"""
+    if new_index > 90: new_index = 1
+    try:
+        url = f"https://api.github.com/gists/{GIST_ID}"
+        headers = {"Authorization": f"token {GH_TOKEN}"}
+        data = {"files": {"lesson_counter.txt": {"content": str(new_index)}}}
+        requests.patch(url, headers=headers, json=data)
+    except Exception as e:
+        print(f"Error updating index: {e}")
 
 def get_daily_content(idx):
-    # သင်ခန်းစာ ၉၀ လုံး (Mio ရဲ့ Lessons အားလုံးကို ဒီမှာ ထည့်ထားပါ)
+    # သင်ခန်းစာ ၉၀ လုံး အပြည့်အစုံ
     lessons = {
         1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
@@ -68,7 +78,7 @@ def get_daily_content(idx):
         29: "🇷🇺 Lesson 29: Number 0\n\nWord: Ноль (နိုးလ်)\nMeaning: သုည",
         30: "🇷🇺 Lesson 30: Hundred\n\nWord: Сто (စတိုး)\nMeaning: တစ်ရာ",
         31: "🇷🇺 Lesson 31: Father\n\nWord: Папа (ပါး-ပါး)\nMeaning: အဖေ",
-        32: "🇷🇺 Lesson 32: Mother\n\nWord: Мама (မား-မား)\nMeaning: အေမ",
+        32: "🇷🇺 Lesson 32: Mother\n\nWord: Мама (မား-မား)\nMeaning: အမေ",
         33: "🇷🇺 Lesson 33: Family\n\nWord: Семья (ဆင်မ်-ယား)\nMeaning: မိသားစု",
         34: "🇷🇺 Lesson 34: Today\n\nWord: Сегодня (စီး-ဗိုး-ဒနီး-ယာ)\nMeaning: ဒီနေ့",
         35: "🇷🇺 Lesson 35: Tomorrow\n\nWord: Завтра (ဇားဖ်-တြာ)\nMeaning: မနက်ဖြန်",
@@ -128,10 +138,9 @@ def get_daily_content(idx):
         89: "🇷🇺 Lesson 89: Peace\n\nWord: Мир (မီရ်)\nMeaning: ငြိမ်းချမ်းရေး",
         90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (အူ-ဒါး-ချီ)\nMeaning: ကံကောင်းပါစေ!"
     }
-
-    raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nစာသားထပ်ဖြည့်ရန် ကျန်သေးသည်")
     
-    # Lesson နံပါတ် ဖယ်ထုတ်ခြင်း (Clean message)
+    raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nContent coming soon")
+    # Clean the message
     final_content = re.sub(r'Lesson \d+:', '', raw_content).strip()
     return final_content.replace('🇷🇺  ', '🇷🇺 ')
 
@@ -155,22 +164,18 @@ def send_message(text):
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
-    requests.post(url, json=payload)
+    r = requests.post(url, json=payload)
+    print(f"Telegram Status: {r.status_code}")
 
 if __name__ == "__main__":
-    # လက်ရှိ မြန်မာစံတော်ချိန်ကို ယူပါမယ်
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
-    current_hour = now.hour
-
-    # မနက် ၈ နာရီမှ ည ၁၂ နာရီ (၂၄ နာရီ) အတွင်းဖြစ်မှ စာပို့ပါမယ်
-    if 8 <= current_hour < 24:
-        # ၁။ ဘယ်နံပါတ်ရောက်နေလဲ Gist ကနေ ဖတ်တယ်
-        current_idx = get_current_index()
-        # ၂။ အဲ့ဒီနံပါတ်နဲ့ စာသားယူတယ်
-        message = get_daily_content(current_idx)
-        # ၃။ Telegram ကို ပို့တယ်
-        send_message(message)
-        # ၄။ နံပါတ်ကို ၁ တိုးပြီး Gist မှာ ပြန်သိမ်းတယ် (နောက်တစ်ခါအတွက်)
-        update_index(current_idx + 1)
-    else:
-        print(f"Silent period: {current_hour} hr. No message sent.")
+    
+    # စမ်းသပ်နေစဉ်အတွင်း အချိန်ကန့်သတ်ချက် (8-24) ကို ဖြုတ်ထားပါမယ်
+    current_idx = get_current_index()
+    print(f"Sending Lesson: {current_idx}")
+    
+    message = get_daily_content(current_idx)
+    send_message(message)
+    
+    # ပို့ပြီးရင် နောက်တစ်ခါအတွက် ၁ တိုးမယ်
+    update_index(current_idx + 1)
