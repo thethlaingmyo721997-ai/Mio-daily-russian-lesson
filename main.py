@@ -7,9 +7,9 @@ API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 def get_daily_content():
-    # သင်ခန်းစာ ၉၀ လုံး (အရင်အတိုင်း အကုန်ထည့်ထားပါ)
+    # သင်ခန်းစာ ၉၀ (အပေါ်က Lesson တွေအတိုင်း အကုန်ပြန်ထည့်ထားပေးပါ)
     lessons = {
-        1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
+ 1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
         3: "🇷🇺 Lesson 3: Good morning\n\nWord: Доброе утро (ဒိုး-ဘရိုး အူ-တြာ)\nMeaning: မင်္ဂလာနံနက်ခင်းပါ",
         4: "🇷🇺 Lesson 4: Good day\n\nWord: Добрый день (ဒိုး-ဘရီ ကျင်း)\nMeaning: မင်္ဂလာနေ့လယ်ခင်းပါ",
@@ -29,32 +29,31 @@ def get_daily_content():
         18: "🇷🇺 Lesson 18: Please repeat\n\nWord: Повторите, пожалуйста\nMeaning: နောက်တစ်ခေါက်လောက်ပြောပေးပါ",
         19: "🇷🇺 Lesson 19: Number 1\n\nWord: Один (အာ-ဂျင်း)\nMeaning: တစ်",
         20: "🇷🇺 Lesson 20: Number 2\n\nWord: Два (ဒွါး)\nMeaning: နှစ်",
+        21: "🇷🇺 Lesson 21: Number 3\n\nWord: Три (တြီး)\nMeaning: သုံး",
+        22: "🇷🇺 Lesson 22: Number 4\n\nWord: Четыре (ချီ-တီး-ရီ)\nMeaning: လေး",
+        23: "🇷🇺 Lesson 23: Number 5\n\nWord: Пять (ပျတ်)\nMeaning: ငါး",
+        24: "🇷🇺 Lesson 24: Number 6\n\nWord: Шесть (ရှက်စ်တ်)\nMeaning: ခြောက်",
+        25: "🇷🇺 Lesson 25: Number 7\n\nWord: Семь (ဆင်မ်)\nMeaning: ခုနစ်",
+        26: "🇷🇺 Lesson 26: Number 8\n\nWord: Восемь (ဝိုး-ဆင်မ်)\nMeaning: ရှစ်",
+        27: "🇷🇺 Lesson 27: Number 9\n\nWord: Девять (ဂျဲ-ဗျတ်)\nMeaning: ကိုး",
+        28: "🇷🇺 Lesson 28: Number 10\n\nWord: Десять (ဂျဲ-ဆတ်)\nMeaning: တစ်ဆယ်",
+        29: "🇷🇺 Lesson 29: Number 0\n\nWord: Ноль (နိုးလ်)\nMeaning: သုည",
+        30: "🇷🇺 Lesson 30: Hundred\n\nWord: Сто (စတိုး)\nMeaning: တစ်ရာ"
     }
     
     # မြန်မာစံတော်ချိန် ယူခြင်း
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
-    day = now.day
-    hour = now.hour
+    hour = now.hour # ၀ နာရီ ကနေ ၂၃ နာရီ အထိ ရှိမည်
 
-    # --- ဧပြီ ၂၇ မှ စမ်းသပ်ရန် Logic ---
-    # ဒီနေ့ (၂၇ ရက်) ကို Day 1 လို့ သတ်မှတ်ဖို့ ၂၆ နှုတ်ပါမည်။
-    # ၂၇ ရက်နေ့ဆိုရင် (27 - 26) = Day 1 ဖြစ်သွားပါမည်။
-    # ၂၈ ရက်နေ့ဆိုရင် (28 - 26) = Day 2 ဖြစ်သွားပါမည်။
-    
-    test_day = day - 26 
-    
-    if test_day < 1: test_day = 1 # အကယ်၍ ၂၇ မတိုင်ခင် ရက်တွေဖြစ်နေခဲ့ရင်
-
-    if hour < 11:
-        idx = (test_day * 3 - 2)
-    elif hour < 14:
-        idx = (test_day * 3 - 1)
-    else:
-        idx = (test_day * 3)
-
+    # စမ်းသပ်ရန်အတွက်: နာရီအလိုက် Lesson နံပါတ် ရွေးခြင်း
+    # ဥပမာ - မနက် ၁၀ နာရီဆိုရင် Lesson 10 ကို ပို့ပေးပါလိမ့်မယ်
+    idx = hour
+    if idx == 0: idx = 24 # ညသန်းခေါင်ဆိုရင် Lesson 24 လို့ သတ်မှတ်
     if idx > 90: idx = 90
     
-    return lessons.get(idx, lessons[1])
+    # သင်ခန်းစာ စာသားကို ယူခြင်း (မရှိရင် Lesson 1 ပို့မည်)
+    content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nContent coming soon!")
+    return content
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
@@ -62,12 +61,12 @@ def send_message(text):
     
     payload = {
         "chat_id": str(CHAT_ID).strip(),
-        "text": f"{text}\n\n<b>MioRussianLanguage Center</b>",
+        "text": f"{text}\n\n<b>Mio Hourly Test Mode</b>",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
     r = requests.post(url, json=payload)
-    print(f"Status: {r.status_code}, Sent Lesson Index: {text.splitlines()[0]}")
+    print(f"Status: {r.status_code}, Sent Hour: {datetime.datetime.now().hour}")
 
 if __name__ == "__main__":
     message = get_daily_content()
