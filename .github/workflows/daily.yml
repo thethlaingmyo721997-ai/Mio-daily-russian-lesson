@@ -2,27 +2,22 @@ name: Mio Russian Daily Lessons
 
 on:
   schedule:
-    # GitHub အချိန်သည် မြန်မာထက် ၆ နာရီခွဲ နောက်ကျပါသည်
-    - cron: '30 2 * * *'   # မြန်မာစံတော်ချိန် မနက် ၉:၀၀ နာရီ (UTC 2:30)
-    - cron: '30 5 * * *'   # မြန်မာစံတော်ချိန် နေ့လယ် ၁၂:၀၀ နာရီ (UTC 5:30)
-    - cron: '30 8 * * *'   # မြန်မာစံတော်ချိန် ညနေ ၃:၀၀ နာရီ (UTC 8:30)
-  workflow_dispatch:      # Manual နှိပ်လို့ရအောင် ထားထားခြင်း
+    # တစ်နာရီတစ်ခါ (မိနစ် ၃၀ တိုင်းမှာ) Run ရန်
+    - cron: '30 * * * *'
+  workflow_dispatch: # ကိုယ်တိုင် နှိပ်ပြီး Run လို့ရအောင် ထားခြင်း
 
 jobs:
-  send-lesson:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-
       - name: Install dependencies
         run: pip install requests
-
       - name: Run script
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
