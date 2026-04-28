@@ -4,37 +4,38 @@ import datetime
 import json
 import re
 
-# GitHub Secrets
+# GitHub Secrets (BOT_TOKEN နဲ့ CHAT_ID ပဲ လိုပါတော့တယ်)
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
-GIST_ID = os.getenv('GIST_ID')   
-GH_TOKEN = os.getenv('GH_TOKEN') 
 
-def get_current_index():
-    try:
-        url = f"https://api.github.com/gists/{GIST_ID}"
-        headers = {"Authorization": f"token {GH_TOKEN}"}
-        r = requests.get(url, headers=headers)
-        if r.status_code != 200:
-            print(f"Gist Access Error: Status {r.status_code}")
-            return 1
-        gist_data = r.json()
-        files = gist_data.get('files', {})
-        if 'lesson_counter.txt' in files:
-            return int(files['lesson_counter.txt']['content'])
-        return 1
-    except:
-        return 1
-
-def update_index(new_index):
-    if new_index > 90: new_index = 1
-    try:
-        url = f"https://api.github.com/gists/{GIST_ID}"
-        headers = {"Authorization": f"token {GH_TOKEN}"}
-        data = {"files": {"lesson_counter.txt": {"content": str(new_index)}}}
-        requests.patch(url, headers=headers, json=data)
-    except:
-        pass
+def get_lesson_index_by_time():
+    """
+    မြန်မာစံတော်ချိန်ပေါ်မူတည်ပြီး Lesson Index ကို တွက်ချက်သည်။
+    မနက် ၈ နာရီ = Lesson 1
+    ည ၈ နာရီ = Lesson 7
+    (၂ နာရီတစ်ခါ ပို့မည်ဟု ယူဆသည်)
+    """
+    # မြန်မာစံတော်ချိန် (UTC+6:30)
+    tz_mm = datetime.timezone(datetime.timedelta(hours=6, minutes=30))
+    now_mm = datetime.datetime.now(tz_mm)
+    
+    # ပထမဆုံး သင်ခန်းစာစတင်မည့်အချိန် (မနက် ၈ နာရီ)
+    start_hour = 8
+    
+    # လက်ရှိအချိန်နှင့် မနက် ၈ နာရီကြား ကွာခြားချက် (နာရီ)
+    hours_passed = now_mm.hour - start_hour
+    
+    # Lesson Index ကို တွက်ခြင်း (၂ နာရီတစ်ခါ တိုးမည်)
+    # idx = (hours_passed // ၂ နာရီ) + ၁
+    if hours_passed < 0:
+        return 1 # မနက် ၈ နာရီမတိုင်ခင်ဆိုရင် Lesson 1
+    
+    idx = (hours_passed // 2) + 1
+    
+    # အကယ်၍ Lesson 90 ထက်ကျော်သွားရင် 1 ကနေ ပြန်စဖို့ logic (လိုအပ်ရင် သုံးရန်)
+    # idx = ((idx - 1) % 90) + 1
+    
+    return idx
 
 def get_daily_content(idx):
     # Mio ရဲ့ သင်ခန်းစာ ၉၀ ကို ဒီမှာ ရှိသမျှ အကုန် ပြန်ဖြည့်ထားပေးပါ
@@ -81,63 +82,68 @@ def get_daily_content(idx):
         40: "🇷🇺 Lesson 40: I want\n\nWord: Я хочу (ယာ ဟာ-ချူး)\nMeaning: ကျွန်တော် အလိုရှိတယ်",
         41: "🇷🇺 Lesson 41: Help\n\nWord: Помогите (ပါ-မာ-ဂီး-ကျီ)\nMeaning: ကူညီပါဦး",
         42: "🇷🇺 Lesson 42: Where?\n\nWord: Где? (ဂဂျဲ?)\nMeaning: ဘယ်မှာလဲ?",
-        43: "🇷🇺 Lesson 43: Left\n\nWord: Налево (နာ-လျဲ-ဗား)\nMeaning: ဘယ်ဘက်",
-        44: "🇷🇺 Lesson 44: Right\n\nWord: Направо (နာ-ပရား-ဗား)\nMeaning: ညာဘက်",
-        45: "🇷🇺 Lesson 45: Straight\n\nWord: Прямо (ပရျား-မာ)\nMeaning: တည့်တည့်",
-        46: "🇷🇺 Lesson 46: Food\n\nWord: Еда (ယီ-ဒါး)\nMeaning: အစားအစာ",
-        47: "🇷🇺 Lesson 47: Water\n\nWord: Вода (ဗာ-ဒါး)\nMeaning: ရေ",
-        48: "🇷🇺 Lesson 48: Bread\n\nWord: Хлеб (ခလပ်)\nMeaning: ပေါင်မုန့်",
-        49: "🇷🇺 Lesson 49: Tea\n\nWord: Чай (ချိုင်း)\nMeaning: လက်ဖက်ရည်",
-        50: "🇷🇺 Lesson 50: Coffee\n\nWord: Кофе (ကိုး-ဖှီ)\nMeaning: ကော်ဖီ",
-        51: "🇷🇺 Lesson 51: Milk\n\nWord: Молоко (မာ-လာ-ကိုး)\nMeaning: နို့",
-        52: "🇷🇺 Lesson 52: Restaurant\n\nWord: Ресторан (ရီ-စတာ-ရန်)\nMeaning: စားသောက်ဆိုင်",
-        53: "🇷🇺 Lesson 53: Bill\n\nWord: Счёт (ရှော့တ်)\nMeaning: ဘေလ်ရှင်းမယ်",
-        54: "🇷🇺 Lesson 54: Delicious\n\nWord: Вкусно (ဗကူး-စနာ)\nMeaning: အရသာရှိတယ်",
-        55: "🇷🇺 Lesson 55: Shop\n\nWord: Магазин (မာ-ဂါ-ဇင်း)\nMeaning: ဆိုင် / ဈေးဆိုင်",
-        56: "🇷🇺 Lesson 56: Price\n\nWord: Цена (စီ-နား)\nMeaning: ဈေးနှုန်း",
+        43: "🇷🇺 Lesson 43: Left\n\nWord: Налево (ナー・リャ・バー)\nMeaning: ဘယ်ဘက်",
+        44: "🇷🇺 Lesson 44: Right\n\nWord: Направо (ナー・プラ・バー)\nMeaning: ညာဘက်",
+        45: "🇷🇺 Lesson 45: Straight\n\nWord: Прямо (プリャ・マー)\nMeaning: တည့်တည့်",
+        46: "🇷🇺 Lesson 46: Food\n\nWord: Еда (イー・ダー)\nMeaning: အစားအစာ",
+        47: "🇷🇺 Lesson 47: Water\n\nWord: Вода (バー・ダー)\nMeaning: ရေ",
+        48: "🇷🇺 Lesson 48: Bread\n\nWord: Хлеб (カレプ)\nMeaning: ပေါင်မုန့်",
+        49: "🇷🇺 Lesson 49: Tea\n\nWord: Чай (チャーイ)\nMeaning: လက်ဖက်ရည်",
+        50: "🇷🇺 Lesson 50: Coffee\n\nWord: Кофе (コー・フィー)\nMeaning: ကော်ဖီ",
+        51: "🇷🇺 Lesson 51: Milk\n\nWord: Молоко (マ・ラー・コー)\nMeaning: နို့",
+        52: "🇷🇺 Lesson 52: Restaurant\n\nWord: Ресторан (リー・スター・ラン)\nMeaning: စားသောက်ဆိုင်",
+        53: "🇷🇺 Lesson 53: Bill\n\nWord: Счёт (ショト)\nMeaning: ဘေလ်ရှင်းမယ်",
+        54: "🇷🇺 Lesson 54: Delicious\n\nWord: Вкусно (ブ・ク・ス・ナー)\nMeaning: အရသာရှိတယ်",
+        55: "🇷🇺 Lesson 55: Shop\n\nWord: Магазин (マ・ガー・ジン)\nMeaning: ဆိုင် / ဈေးဆိုင်",
+        56: "🇷🇺 Lesson 56: Price\n\nWord: Цена (ツェー・ナー)\nMeaning: ဈေးနှုန်း",
         57: "🇷🇺 Lesson 57: How much?\n\nWord: Сколько стоит?\nMeaning: ဘယ်လောက်ကျလဲ?",
-        58: "🇷🇺 Lesson 58: Clothes\n\nWord: Одежда (အာ-ဂျဲ-ရှ်ဒါ)\nMeaning: အဝတ်အစား",
-        59: "🇷🇺 Lesson 59: Shoes\n\nWord: Обувь (အိုး-ဘူဖှ်)\nMeaning: ဖိနပ်",
+        58: "🇷🇺 Lesson 58: Clothes\n\nWord: Одежда (アー・ジェ・シュダー)\nMeaning: အဝတ်အစား",
+        59: "🇷🇺 Lesson 59: Shoes\n\nWord: Обувь (オー・ブフ)\nMeaning: ဖိနပ်",
         60: "🇷🇺 Lesson 60: Big / Small\n\nWord: Большой / Маленький\nMeaning: ကြီးသော / သေးသော",
-        61: "🇷🇺 Lesson 61: Happy\n\nWord: Счастлив (ရှတ်-စလစ်)\nMeaning: ပျော်ရွှင်သော",
-        62: "🇷🇺 Lesson 62: Sad\n\nWord: Грустный (ဂရုစ်-နီ)\nMeaning: ဝမ်းနည်းသော",
-        63: "🇷🇺 Lesson 63: Tired\n\nWord: Я устал (ယာ အူ-စတားလ်)\nMeaning: ကျွန်တော် ပင်ပန်းနေတယ်",
-        64: "🇷🇺 Lesson 64: Weather\n\nWord: Погода (ပါ-ဂိုး-ဒါ)\nMeaning: ရာသီဥတု",
-        65: "🇷🇺 Lesson 65: Hot\n\nWord: Жарко (ရှဲ-ကာ)\nMeaning: ပူတယ်",
-        66: "🇷🇺 Lesson 66: Cold\n\nWord: Холодно (ဟိုး-လဒ်-နာ)\nMeaning: အေးတယ်",
-        67: "🇷🇺 Lesson 67: Sun\n\nWord: Солнце (ဆိုးလ်န်-စီ)\nMeaning: နေမင်း",
-        68: "🇷🇺 Lesson 68: Rain\n\nWord: Дождь (ဒိုးရှ်တ်)\nMeaning: မိုးရွာခြင်း",
-        69: "🇷🇺 Lesson 69: Beautiful\n\nWord: Красиво (ကရာ-စီး-ဗား)\nMeaning: လှပတယ်",
-        70: "🇷🇺 Lesson 70: Doctor\n\nWord: Врач (ဗရတ်ချ်)\nMeaning: ဆရာဝန်",
-        71: "🇷🇺 Lesson 71: Pharmacy\n\nWord: Аптека (အပ်-ဂျဲ-ကာ)\nMeaning: ဆေးဆိုင်",
-        72: "🇷🇺 Lesson 72: Hospital\n\nWord: Больница (ဘယ်လ်-နီး-ဆာ)\nMeaning: ဆေးရုံ",
-        73: "🇷🇺 Lesson 73: Car\n\nWord: Машина (မာ-ရှီး-နား)\nMeaning: ကား",
-        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобус (အပ်-တိုး-ဘုစ်)\nMeaning: ဘတ်စ်ကား",
-        75: "🇷🇺 Lesson 75: Airport\n\nWord: Аэропорт (အာ-အီ-ရာ-ပို့တ်)\nMeaning: လေဆိပ်",
-        76: "🇷🇺 Lesson 76: Speak\n\nWord: Говорить (ဂါ-ဗာ-ရီးတ့်)\nMeaning: ပြောဆိုသည်",
-        77: "🇷🇺 Lesson 77: Russian\n\nWord: Русский (ရုစ်-ကီး)\nMeaning: ရုရှား",
+        61: "🇷🇺 Lesson 61: Happy\n\nWord: Счастлив (シャ・ス・ト・リフ)\nMeaning: ပျော်ရွှင်သော",
+        62: "🇷🇺 Lesson 62: Sad\n\nWord: Грустный (グル・ス・ト・ニー)\nMeaning: ဝမ်းနည်းသော",
+        63: "🇷🇺 Lesson 63: Tired\n\nWord: Я устал (ヤー・ウ・スター・ル)\nMeaning: ကျွန်တော် ပင်ပန်းနေတယ်",
+        64: "🇷🇺 Lesson 64: Weather\n\nWord: Погода (パ・ゴー・ダー)\nMeaning: ရာသီဥတု",
+        65: "🇷🇺 Lesson 65: Hot\n\nWord: Жарко (ジャール・カー)\nMeaning: ပူတယ်",
+        66: "🇷🇺 Lesson 66: Cold\n\nWord: Холодно (ホー・ロ・ド・ナー)\nMeaning: အေးတယ်",
+        67: "🇷🇺 Lesson 67: Sun\n\nWord: Солнце (ソーン・ツェ)\nMeaning: နေမင်း",
+        68: "🇷🇺 Lesson 68: Rain\n\nWord: Дождь (ドーシュチ)\nMeaning: မိုးရွာခြင်း",
+        69: "🇷🇺 Lesson 69: Beautiful\n\nWord: Красиво (クラ・シー・バー)\nMeaning: လှပတယ်",
+        70: "🇷🇺 Lesson 70: Doctor\n\nWord: Врач (ブラーチ)\nMeaning: ဆရာဝန်",
+        71: "🇷🇺 Lesson 71: Pharmacy\n\nWord: Аптека (アプ・テー・カー)\nMeaning: ဆေးဆိုင်",
+        72: "🇷🇺 Lesson 72: Hospital\n\nWord: Больница (バリ・ニー・ツァ)\nMeaning: ဆေးရုံ",
+        73: "🇷🇺 Lesson 73: Car\n\nWord: Машина (マ・シー・ナー)\nMeaning: ကား",
+        74: "🇷🇺 Lesson 74: Bus\n\nWord: Автобус (アフ・トー・ブス)\nMeaning: ဘတ်စ်ကား",
+        75: "🇷🇺 Lesson 75: Airport\n\nWord: Аэропорт (アエ・ラー・ポルト)\nMeaning: လေဆိပ်",
+        76: "🇷🇺 Lesson 76: Speak\n\nWord: Говорить (ガ・バー・リート)\nMeaning: ပြောဆိုသည်",
+        77: "🇷🇺 Lesson 77: Russian\n\nWord: Русский (ル・ス・キー)\nMeaning: ရုရှား",
         78: "🇷🇺 Lesson 78: English\n\nWord: Английский\nMeaning: အင်္ဂလိပ်",
-        79: "🇷🇺 Lesson 79: Book\n\nWord: Книга (ကနီး-ဂါ)\nMeaning: စာအုပ်",
-        80: "🇷🇺 Lesson 80: Music\n\nWord: Музыка (မူး-ဇီ-ကာ)\nMeaning: ဂီတ",
-        81: "🇷🇺 Lesson 81: Movie\n\nWord: Кино (ကီ-နိုး)\nMeaning: ရုပ်ရှင်",
-        82: "🇷🇺 Lesson 82: Time\n\nWord: Время (ဗရျဲ-မျာ)\nMeaning: အချိန်",
-        83: "🇷🇺 Lesson 83: Hour\n\nWord: Час (ချပ်စ်)\nMeaning: နာရီ",
-        84: "🇷🇺 Lesson 84: Minute\n\nWord: Минута (မိ-နူး-တာ)\nMeaning: မိနစ်",
-        85: "🇷🇺 Lesson 85: Color\n\nWord: Цвет (စဗျက်)\nMeaning: အရောင်",
-        86: "🇷🇺 Lesson 86: Red\n\nWord: Красный (ကရက်စ်-နီ)\nMeaning: အနီရောင်",
-        87: "🇷🇺 Lesson 87: Blue\n\nWord: Синий (စီး-နီ)\nMeaning: အပြာရောင်",
-        88: "🇷🇺 Lesson 88: Love\n\nWord: Любовь (လျူ-ဘိုးဖှ်)\nMeaning: အချစ်",
-        89: "🇷🇺 Lesson 89: Peace\n\nWord: Мир (မီရ်)\nMeaning: ငြိမ်းချမ်းရေး",
-        90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (အူ-ဒါး-ချီ)\nMeaning: ကံကောင်းပါစေ!"
+        79: "🇷🇺 Lesson 79: Book\n\nWord: Книга (ク・ニー・ガ)\nMeaning: စာအုပ်",
+        80: "🇷🇺 Lesson 80: Music\n\nWord: Музыка (ムー・ズィ・カー)\nMeaning: ဂီတ",
+        81: "🇷🇺 Lesson 81: Movie\n\nWord: Кино (キー・ノー)\nMeaning: ရုပ်ရှင်",
+        82: "🇷🇺 Lesson 82: Time\n\nWord: Время (ブレー・ミャ)\nMeaning: အချိန်",
+        83: "🇷🇺 Lesson 83: Hour\n\nWord: Час (チャス)\nMeaning: နာရီ",
+        84: "🇷🇺 Lesson 84: Minute\n\nWord: Минута (ミ・ヌー・ター)\nMeaning: မိနစ်",
+        85: "🇷🇺 Lesson 85: Color\n\nWord: Цвет (ツベト)\nMeaning: အရောင်",
+        86: "🇷🇺 Lesson 86: Red\n\nWord: Красный (クラス・ニー)\nMeaning: အနီရောင်",
+        87: "🇷🇺 Lesson 87: Blue\n\nWord: Синий (スィー・ニー)\nMeaning: အပြာရောင်",
+        88: "🇷🇺 Lesson 88: Love\n\nWord: Любовь (リュ・ボーフィ)\nMeaning: အချစ်",
+        89: "🇷🇺 Lesson 89: Peace\n\nWord: Мир (ミール)\nMeaning: ငြိမ်းချမ်းရေး",
+        90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (ウ・ダー・チ)\nMeaning: ကံကောင်းပါစေ!"
     }
     raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nContent Loading...")
     final_content = re.sub(r'Lesson \d+:', '', raw_content).strip()
+    # Replace non-breaking spaces with regular spaces
+    final_content = final_content.replace('\xa0', ' ')
     return final_content.replace('🇷🇺  ', '🇷🇺 ')
 
 def send_message(text):
+    if not API_TOKEN or not CHAT_ID:
+        print("Error: BOT_TOKEN or CHAT_ID is missing.")
+        return
+
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
     
-    # ပြန်ထည့်ပေးလိုက်တဲ့ Button (Inline Keyboard) နှစ်ခု
     keyboard = {
         "inline_keyboard": [
             [{"text": "📱 TikTok မှာလေ့လာရန်", "url": "https://www.tiktok.com/@miorusskiy"}],
@@ -156,20 +162,28 @@ def send_message(text):
         "chat_id": str(CHAT_ID).strip(),
         "text": f"{text}{footer}",
         "parse_mode": "HTML",
-        "reply_markup": json.dumps(keyboard) # Button ပြန်ထည့်တဲ့ အပိုင်း
+        "reply_markup": json.dumps(keyboard)
     }
     
-    r = requests.post(url, json=payload)
-    print(f"Telegram Response: {r.status_code}")
+    try:
+        r = requests.post(url, json=payload, timeout=10)
+        r.raise_for_status()
+        print(f"Telegram Response: {r.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending message to Telegram: {e}")
 
 if __name__ == "__main__":
-    now = datetime.datetime.utcnow() + datetime.timedelta(hours=6, minutes=30)
+    # မြန်မာစံတော်ချိန် (UTC+6:30)
+    tz_mm = datetime.timezone(datetime.timedelta(hours=6, minutes=30))
+    now_mm = datetime.datetime.now(tz_mm)
     
-    # မြန်မာစံတော်ချိန် ၈ နာရီမှ ၂၄ နာရီအတွင်းဖြစ်မှ ပို့မည်
-    if 8 <= now.hour < 20:
-        idx = get_current_index()
+    print(f"Current Myanmar Time: {now_mm.strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # မြန်မာစံတော်ချိန် ၈ နာရီမှ ၂၀ နာရီအတွင်းဖြစ်မှ ပို့မည်
+    if 8 <= now_mm.hour < 20:
+        idx = get_lesson_index_by_time()
+        print(f"Sending Lesson Index: {idx}")
         message = get_daily_content(idx)
         send_message(message)
-        update_index(idx + 1)
     else:
-        print(f"Silent mode active (Hour: {now.hour}). No message sent.")
+        print(f"Silent mode active (Hour: {now_mm.hour}). No message sent.")
