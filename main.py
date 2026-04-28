@@ -8,39 +8,25 @@ import re
 API_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
-def get_lesson_index_by_time():
-    """
-    မြန်မာစံတော်ချိန်ပေါ်မူတည်ပြီး Lesson Index ကို တွက်ချက်သည်။
-    မနက် ၈ နာရီ = Lesson 1
-    ည ၈ နာရီ = Lesson 7
-    (၂ နာရီတစ်ခါ ပို့မည်ဟု ယူဆသည်)
-    """
-    # မြန်မာစံတော်ချိန် (UTC+6:30)
-    tz_mm = datetime.timezone(datetime.timedelta(hours=6, minutes=30))
-    now_mm = datetime.datetime.now(tz_mm)
-    
-    # ပထမဆုံး သင်ခန်းစာစတင်မည့်အချိန် (မနက် ၈ နာရီ)
-    start_hour = 8
-    
-    # လက်ရှိအချိန်နှင့် မနက် ၈ နာရီကြား ကွာခြားချက် (နာရီ)
-    hours_passed = now_mm.hour - start_hour
-    
-    # Lesson Index ကို တွက်ခြင်း (၂ နာရီတစ်ခါ တိုးမည်)
-    # idx = (hours_passed // ၂ နာရီ) + ၁
-    if hours_passed < 0:
-        return 1 # မနက် ၈ နာရီမတိုင်ခင်ဆိုရင် Lesson 1
-    
-    idx = (hours_passed // 2) + 1
-    
-    # အကယ်၍ Lesson 90 ထက်ကျော်သွားရင် 1 ကနေ ပြန်စဖို့ logic (လိုအပ်ရင် သုံးရန်)
-    # idx = ((idx - 1) % 90) + 1
-    
-    return idx
+def get_current_index():
+    # lesson_counter.txt file ရှိမရှိ စစ်မယ်၊ မရှိရင် ၁ ကနေ စမယ်
+    if not os.path.exists('lesson_counter.txt'):
+        return 1
+    try:
+        with open('lesson_counter.txt', 'r') as f:
+            return int(f.read().strip())
+    except:
+        return 1
+
+def update_index(new_index):
+    if new_index > 90: new_index = 1
+    with open('lesson_counter.txt', 'w') as f:
+        f.write(str(new_index))
 
 def get_daily_content(idx):
-    # Mio ရဲ့ သင်ခန်းစာ ၉၀ ကို ဒီမှာ ရှိသမျှ အကုန် ပြန်ဖြည့်ထားပေးပါ
+    # Mio ရဲ့ Lesson ၉၀ လုံးကို ဒီမှာ ထည့်ထားပါ
     lessons = {
-        1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
+1: "🇷🇺 Lesson 1: Greetings\n\nWord: Привет (ပရီ-ဗျက်)\nMeaning: မင်္ဂလာပါ (ရင်းနှီးသူများအကြား)",
         2: "🇷🇺 Lesson 2: Formal Greetings\n\nWord: Здравствуйте (ဇဒြား-စတွူ-ကျီ)\nMeaning: မင်္ဂလာပါ (လူကြီး/သူစိမ်း)",
         3: "🇷🇺 Lesson 3: Good morning\n\nWord: Доброе утро (ဒိုး-ဘရိုး အူ-တြာ)\nMeaning: မင်္ဂလာနံနက်ခင်းပါ",
         4: "🇷🇺 Lesson 4: Good day\n\nWord: Добрый день (ဒိုး-ဘရီ ကျင်း)\nMeaning: မင်္ဂလာနေ့လယ်ခင်းပါ",
@@ -131,59 +117,38 @@ def get_daily_content(idx):
         89: "🇷🇺 Lesson 89: Peace\n\nWord: Мир (ミール)\nMeaning: ငြိမ်းချမ်းရေး",
         90: "🇷🇺 Lesson 90: Good luck\n\nWord: Удачи! (ウ・ダー・チ)\nMeaning: ကံကောင်းပါစေ!"
     }
-    raw_content = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nContent Loading...")
-    final_content = re.sub(r'Lesson \d+:', '', raw_content).strip()
-    # Replace non-breaking spaces with regular spaces
-    final_content = final_content.replace('\xa0', ' ')
-    return final_content.replace('🇷🇺  ', '🇷🇺 ')
+    
+    raw = lessons.get(idx, f"🇷🇺 Lesson {idx}\n\nContent Loading...")
+    return re.sub(r'Lesson \d+:', '', raw).strip().replace('🇷🇺  ', '🇷🇺 ')
 
 def send_message(text):
-    if not API_TOKEN or not CHAT_ID:
-        print("Error: BOT_TOKEN or CHAT_ID is missing.")
-        return
-
     url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
-    
     keyboard = {
         "inline_keyboard": [
             [{"text": "📱 TikTok မှာလေ့လာရန်", "url": "https://www.tiktok.com/@miorusskiy"}],
             [{"text": "ℹ️ သင်တန်းအသေးစိတ်ဖတ်ရန်", "url": "https://telegra.ph/Mio-Russian-Language-A1-Level-04-27"}]
         ]
     }
-    
-    footer = (
-        f"\n\n<b>MioRussianLanguage Center</b>\n"
-        f"------------------------------\n"
-        f"<b>သင်တန်းစုံစမ်းရန်</b>\n"
-        f"<b>Viber/Phone : +959693548605</b>\n"
-    )
-    
+    footer = f"\n\n<b>MioRussianLanguage Center</b>\n<b>Viber/Phone : +959693548605</b>"
     payload = {
         "chat_id": str(CHAT_ID).strip(),
         "text": f"{text}{footer}",
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard)
     }
-    
-    try:
-        r = requests.post(url, json=payload, timeout=10)
-        r.raise_for_status()
-        print(f"Telegram Response: {r.status_code}")
-    except requests.exceptions.RequestException as e:
-        print(f"Error sending message to Telegram: {e}")
+    r = requests.post(url, json=payload)
+    return r.status_code
 
 if __name__ == "__main__":
-    # မြန်မာစံတော်ချိန် (UTC+6:30)
     tz_mm = datetime.timezone(datetime.timedelta(hours=6, minutes=30))
     now_mm = datetime.datetime.now(tz_mm)
     
-    print(f"Current Myanmar Time: {now_mm.strftime('%Y-%m-%d %H:%M:%S')}")
-    
-    # မြန်မာစံတော်ချိန် ၈ နာရီမှ ၂၀ နာရီအတွင်းဖြစ်မှ ပို့မည်
     if 8 <= now_mm.hour < 20:
-        idx = get_lesson_index_by_time()
-        print(f"Sending Lesson Index: {idx}")
-        message = get_daily_content(idx)
-        send_message(message)
+        idx = get_current_index()
+        status = send_message(get_daily_content(idx))
+        
+        if status == 200:
+            update_index(idx + 1)
+            print(f"Sent Lesson {idx}. Next will be {idx+1}")
     else:
-        print(f"Silent mode active (Hour: {now_mm.hour}). No message sent.")
+        print(f"Silent mode. Current hour: {now_mm.hour}")
