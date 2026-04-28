@@ -1,25 +1,37 @@
-name: Mio Russian Daily Lessons
+name: Daily Russian Lesson
 
 on:
   schedule:
-    # တစ်နာရီတစ်ခါ (မိနစ် ၃၀ တိုင်းမှာ) Run ရန်
-    - cron: '30 * * * *'
-  workflow_dispatch: # ကိုယ်တိုင် နှိပ်ပြီး Run လို့ရအောင် ထားခြင်း
+    - cron: '0 */2 * * *' # ၂ နာရီတစ်ခါ
+  workflow_dispatch: # လက်နဲ့နှိပ်ပြီး စမ်းလို့ရအောင်
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true # File ပြန်သိမ်းဖို့ ခွင့်ပြုချက်
+
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
+
       - name: Install dependencies
         run: pip install requests
+
       - name: Run script
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
+
+      - name: Commit and push changes # နံပါတ်တိုးသွားတာကို သိမ်းဆည်းတဲ့အပိုင်း
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add lesson_counter.txt
+          git commit -m "Update lesson counter" || echo "No changes to commit"
+          git push
